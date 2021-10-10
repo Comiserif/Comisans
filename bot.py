@@ -1,4 +1,3 @@
-from os import environ, path
 from datetime import datetime, timezone, timedelta
 from random import randrange
 from PIL import Image, ImageFont, ImageDraw, ImageColor
@@ -48,7 +47,7 @@ async def on_connect():
 async def on_ready():
 	global poketwo
 	print("Hello World!")
-	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="the South American Portuguese | ;h"))
+	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="Hololive Council | ;h"))
 	poketwo = await bot.fetch_user(716390085896962058)
 	poketwo = poketwo.avatar_url
 
