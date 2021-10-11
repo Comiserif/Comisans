@@ -18,6 +18,7 @@ slash = SlashCommand(bot, sync_commands=True)
 
 font = ImageFont.truetype("comicsansms3.ttf", 48)
 letters = "abcdefghijklmnopqrstuvwxyz"
+numbers = "0123456789"
 current = datetime.now(timezone(timedelta(hours=-5))) # 5 = CDT; 6 = CST
 
 logs = []
@@ -73,7 +74,7 @@ async def on_message(msg):
 		return
 
 	content = msg.content.lower()
-	if "clara" in content and	msg.author.id not in mods:
+	if ("clara " in content or content.endswith("clara")) and msg.author.id not in mods:
 		await msg.channel.send(f"<{msg.author.name}> {msg.content}")
 
 	for i in msg.embeds:
@@ -85,11 +86,11 @@ async def on_message(msg):
 	brazil = False
 	if isinstance(msg.author, discord.Member):
 		for i in msg.author.roles:
-			if i == "Shitty bitch in prison":
+			if i.id == 745166782477893664:
 				brazil = True
 	if brazil:
 		await msg.reply("https://media.discordapp.net/attachments/690665832350613545/831319542151118858/image0.gif")
-	if msg.channel == "brazil":
+	if msg.channel.id == 745167500701990982:
 		with open("brazil.txt", "a") as f:
 			f.write(f"{msg.author.name}\n\t{msg.clean_content}\n")
 
@@ -220,65 +221,80 @@ async def lastImages(ctx, channel:discord.abc.GuildChannel):
 
 
 
-#@slash.slash(description="Show the last deleted message in a channel.", guild_ids=guild_ids, options=[])
-#async def deleted
-
-
-
-@slash.slash(description="React with letters to a message.", guild_ids=guild_ids, options=[create_option(name="message_id", description="The ID of the message you want to react to.", option_type=3, required=True), create_option(name="text", description="The text to react to the message with", option_type=3, required=True)])
-async def letterReact(ctx, message_id:str, text:str):
+@slash.slash(description="React with letters and numbers to a message.", guild_ids=guild_ids, options=[create_option(name="message_id", description="The ID of the message you want to react to.", option_type=3, required=True), create_option(name="text", description="The text to react to the message with", option_type=3, required=True)])
+async def react(ctx, message_id:str, text:str):
 	text = text.lower()
-	if not text.isalpha():
-		banned = []
-		for i in text:
-			if not i.isalpha():
-				banned.append(i)
-		for i in banned:
-			text = text.replace(i, "")
-	
-	msg_id = int(message_id)
-	chnl_id = ctx.channel_id
-	channel = discord.utils.get(bot.get_all_channels(), id=chnl_id)
-	try:
-		msg = await channel.fetch_message(msg_id)
-	except:
-		await ctx.send("[message_id] needs to be an ID of a message.", hidden=True)
-		return
+	banned = []
 	for i in text:
-		num = 0
+		if not i.isalnum():
+			banned.append(i)
+	for i in banned:
+		text = text.replace(i, "")
+
+	in_server = False
+	for i in ctx.guild.text_channels:
+		try:
+			msg = await i.fetch_message(int(message_id))
+			in_server = True
+		except:
+			continue
+	if not in_server:
+		await ctx.send("[message_id] needs to be an ID of a message in this server.", hidden=True)
+		return
+	emojis = []
+	for i in text:
 		for j in range(len(letters)):
 			if letters[j] == i:
-				num = j
-		await msg.add_reaction(chr(127462+num))
+				emojis.append(chr(127462+j))
+		for j in range(len(numbers)):
+			if numbers[j] == i:
+				emojis.append(chr(48+j) + symbols["present"] + "\u20e3")
+	for i in emojis:
+		await msg.add_reaction(i)
 	await ctx.send(embed=discord.Embed(title="**Go to Message**", url=msg.jump_url, color=colors["main"]))
 
 
 
-@bot.command(name="r")
-async def react(ctx, *para):
+@bot.command()
+async def r(ctx, *para):
 	if para == ():
 		await ctx.reply("You need to input something.", mention_author=False)
+		return
 	
 	phrase = ""
 	for i in para:
 		phrase += i
 	phrase = phrase.lower()
-	if not phrase.isalpha():
-		banned = []
-		for i in phrase:
+	banned = []
+	for i in phrase:
+		if not phrase.isalnum():
 			if i not in letters:
 				banned.append(i)
-		for i in banned:
-			phrase = phrase.replace(i, "")
+	for i in banned:
+		phrase = phrase.replace(i, "")
 	
 	if ctx.message.reference != None:
-		msg = await ctx.channel.fetch_message(ctx.message.reference.message_id)
+		in_server = False
+		for i in ctx.guild.text_channels:
+			try:
+				msg = await i.fetch_message(ctx.message.reference.message_id)
+				in_server = True
+			except:
+				continue
+		if not in_server:
+			await ctx.reply("[message_id] needs to be an ID of a message in this server.", mention_author=False)
+			return
+		emojis = []
 		for i in phrase:
-			num = 0
 			for j in range(len(letters)):
 				if letters[j] == i:
-					num = j
-			await msg.add_reaction(chr(127462+num))
+					emojis.append(chr(127462+j))
+			for j in range(len(numbers)):
+				if numbers[j] == i:
+					emojis.append(chr(48+j) + symbols["present"] + "\u20e3")
+		for i in emojis:
+			await msg.add_reaction(i)
+		await ctx.reply(embed=discord.Embed(title="**Go to Message**", url=msg.jump_url, color=colors["main"]))
 	else:
 		await ctx.reply("You need to reply to a message.", mention_author=False)
 
