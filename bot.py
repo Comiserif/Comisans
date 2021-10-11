@@ -57,7 +57,7 @@ async def on_ready():
 #	check.start()
 
 	channel = discord.utils.get(bot.get_all_channels(), name="local-retards")
-#	msg = await channel.send(content="The world is sick of us calling ourselves Americans and claiming as if we represent the entirety of both continents. What do we call ourselves?", file=None)
+	msg = await channel.send(content="test", file=None)
 #	msg = await channel.fetch_message(894412905204826112)
 #	await msg.delete()
 
