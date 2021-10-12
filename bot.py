@@ -1,3 +1,4 @@
+from os import environ
 from datetime import datetime, timezone, timedelta
 from random import randrange
 from PIL import Image, ImageFont, ImageDraw, ImageColor
@@ -311,5 +312,4 @@ async def listCommands(ctx):
 	emb.set_footer(text="All commands are case insensitive.")
 	await ctx.send(embed=emb)
 
-with open("token.txt") as f:
-	bot.run(f.read())
+bot.run(environ["token"])
