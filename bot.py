@@ -179,42 +179,32 @@ async def uncaughtList(ctx):
 
 
 
-@slash.slash(description="Find the most recent 10 messages with images sent in a channel.", guild_ids=guild_ids, options=[create_option(name="channel", description="The channel to get the images from.", option_type=7, required=True)])
+@slash.slash(description="Find the most recent 10 images sent in a channel.", guild_ids=guild_ids, options=[create_option(name="channel", description="The channel to get the images from.", option_type=7, required=True)])
 async def lastImages(ctx, channel:discord.abc.GuildChannel):
 	if not isinstance(channel, discord.TextChannel):
 		await ctx.send(f"{channel} is not a text channel.", hidden=True)
 		return
-	multi = 1
-	searching = True
-	while searching:
-		msg_list = []
-		msg_ct = 0
-		att_ct = 1
-		async for i in channel.history(limit=200*multi):
-			if msg_ct < 10 and i.attachments != []:
-				msg_ct += 1
-				i.attachments.reverse()
-				for j in i.attachments:
+	msg_list = []
+	att_ct = 0
+	async for i in channel.history(limit=500):
+		if i.attachments != []:
+			i.attachments.reverse()
+			for j in i.attachments:
+				if att_ct < 10:
 					att_ct += 1
 					msg_list.append([i.jump_url, j.url, att_ct])
-		if msg_ct < 10:
-			multi += 1
-		else:
-			searching = False
-		if multi == 10:
-			searching = False
 	if msg_list == []:
-		await ctx.send("Could not find any images in the most recent 2000 messages.")
+		await ctx.send(f"Could not find any images in the most recent 500 messages.")
 		return
-	emb = discord.Embed(title=f"Last Sent Images in #{channel}", color=colors["main"])
+	emb = discord.Embed(title=f"Last Sent Images in #{channel}", description="If an image is not shown here, it is a video.", color=colors["main"])
 	emb.set_image(url=msg_list[0][1])
-	emb.set_footer(text=f"Page 1/{len(msg_list)}")
+	emb.set_footer(text=f"1/{len(msg_list)}")
 
 	def init_buttons():
-		act_row = create_actionrow(create_button(style=ButtonStyle.blue, emoji="\u2b05" + symbols["present"], custom_id="l"), create_button(style=ButtonStyle.blue, emoji="\u27a1" + symbols["present"], custom_id="r"), create_button(style=ButtonStyle.URL, label="Go to Message", url=msg_list[0][0]), create_button(style=ButtonStyle.URL, label="Image Link", url=msg_list[0][1]))
-		return act_row
+		return create_actionrow(create_button(style=ButtonStyle.blue, emoji="\u2b05" + symbols["present"], custom_id="l"), create_button(style=ButtonStyle.blue, emoji="\u27a1" + symbols["present"], custom_id="r"), create_button(style=ButtonStyle.URL, label="Go to Message", url=msg_list[0][0]), create_button(style=ButtonStyle.URL, label="Image Link", url=msg_list[0][1]))
 
-	await ctx.send(embed=emb, components=[init_buttons()])
+	act_row = init_buttons()
+	await ctx.send(embed=emb, components=[act_row])
 
 	@bot.event
 	async def on_component(comctx:ComponentContext):
@@ -230,7 +220,7 @@ async def lastImages(ctx, channel:discord.abc.GuildChannel):
 			msg_list.pop(0)
 
 		emb.set_image(url=msg_list[0][1])
-		emb.set_footer(text=f"Page {msg_list[0][2]}/{len(msg_list)}")
+		emb.set_footer(text=f"{msg_list[0][2]}/{len(msg_list)}")
 
 		await comctx.edit_origin(embed=emb, components=[init_buttons()])
 
