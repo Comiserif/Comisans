@@ -203,6 +203,9 @@ async def lastImages(ctx, channel:discord.abc.GuildChannel):
 			searching = False
 		if multi == 10:
 			searching = False
+	if msg_list == []:
+		await ctx.send("Could not find any images in the most recent 2000 messages.")
+		return
 	emb = discord.Embed(title=f"Last Sent Images in #{channel}", color=colors["main"])
 	emb.set_image(url=msg_list[0][1])
 	emb.set_footer(text=f"Page 1/{len(msg_list)}")
