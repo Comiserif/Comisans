@@ -179,19 +179,30 @@ async def uncaughtList(ctx):
 
 
 
-@slash.slash(description="Find (at least) the last 10 images sent in a channel.", guild_ids=guild_ids, options=[create_option(name="channel", description="The channel to get the images from.", option_type=7, required=True)])
+@slash.slash(description="Find the most recent 10 messages with images sent in a channel.", guild_ids=guild_ids, options=[create_option(name="channel", description="The channel to get the images from.", option_type=7, required=True)])
 async def lastImages(ctx, channel:discord.abc.GuildChannel):
 	if not isinstance(channel, discord.TextChannel):
 		await ctx.send(f"{channel} is not a text channel.", hidden=True)
 		return
-	msg_list = []
-	count = 1
-	async for i in channel.history(limit=250):
-		if len(msg_list) < 10 and i.attachments != []:
-			i.attachments.reverse()
-			for j in i.attachments:
-				msg_list.append([i.jump_url, j.url, count])
-				count += 1
+	multi = 1
+	searching = True
+	while searching:
+		msg_list = []
+		msg_ct = 0
+		att_ct = 1
+		async for i in channel.history(limit=200*multi):
+			if msg_ct < 10 and i.attachments != []:
+				msg_ct += 1
+				i.attachments.reverse()
+				for j in i.attachments:
+					att_ct += 1
+					msg_list.append([i.jump_url, j.url, att_ct])
+		if msg_ct < 10:
+			multi += 1
+		else:
+			searching = False
+		if multi == 10:
+			searching = False
 	emb = discord.Embed(title=f"Last Sent Images in #{channel}", color=colors["main"])
 	emb.set_image(url=msg_list[0][1])
 	emb.set_footer(text=f"Page 1/{len(msg_list)}")
@@ -224,13 +235,24 @@ async def lastImages(ctx, channel:discord.abc.GuildChannel):
 
 @slash.slash(description="React with letters and numbers to a message.", guild_ids=guild_ids, options=[create_option(name="message_id", description="The ID of the message you want to react to.", option_type=3, required=True), create_option(name="text", description="The text to react to the message with", option_type=3, required=True)])
 async def react(ctx, message_id:str, text:str):
-	text = text.lower()
+	length = len(text)
+	init = []
+	description = ""
+	for i in text:
+		init.append(i)
+	text = "".join(dict.fromkeys(init)).lower()
+	if length > len(text):
+		description += "— A message cannot have duplicate reactions.\n"
+	if len(text) > 20:
+		description += "— Your message was cut off because a message can only have 20 reactions.\n"
 	banned = []
 	for i in text:
 		if not i.isalnum():
 			banned.append(i)
 	for i in banned:
 		text = text.replace(i, "")
+	if length > len(text):
+		description += "— This command only supports letters and numbers.\n"
 
 	in_server = False
 	for i in ctx.guild.text_channels:
@@ -252,7 +274,7 @@ async def react(ctx, message_id:str, text:str):
 				emojis.append(chr(48+j) + symbols["present"] + "\u20e3")
 	for i in emojis:
 		await msg.add_reaction(i)
-	await ctx.send(embed=discord.Embed(title="**Go to Message**", url=msg.jump_url, color=colors["main"]))
+	await ctx.send(embed=discord.Embed(title="**Go to Message**", description=description, url=msg.jump_url, color=colors["main"]))
 
 
 
@@ -262,10 +284,7 @@ async def r(ctx, *para):
 		await ctx.reply("You need to input something.", mention_author=False)
 		return
 	
-	phrase = ""
-	for i in para:
-		phrase += i
-	phrase = phrase.lower()
+	phrase = "".join(para).lower()
 	banned = []
 	for i in phrase:
 		if not phrase.isalnum():
