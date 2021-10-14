@@ -259,6 +259,7 @@ async def react(ctx, message_id:str, text:str):
 		description += "— A message cannot have duplicate reactions.\n"
 	if len(text) > 20:
 		description += "— Your message was cut off because a message can only have 20 reactions.\n"
+		text = text[:20]
 	banned = []
 	for i in text:
 		if not i.isalnum():
@@ -312,6 +313,7 @@ async def r(ctx, *para):
 		description += "— A message cannot have duplicate reactions.\n"
 	if len(text) > 20:
 		description += "— Your message was cut off because a message can only have 20 reactions.\n"
+		text = text[:20]
 	banned = []
 	for i in text:
 		if not i.isalnum():
