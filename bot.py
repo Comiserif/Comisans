@@ -144,9 +144,9 @@ async def sendComic(ctx, message:str, color:str="#f0f"):
 @slash.slash(description="Make a poll.", guild_ids=guild_ids, options=[create_option(name="title", description="The title of the poll.", option_type=3, required=True), create_option(name="choice1", description="The poll's first choice.", option_type=3, required=True), create_option(name="choice2", description="The poll's second choice.", option_type=3, required=True)])
 async def poll(ctx, title:str, choice1:str, choice2:str):
 	numbers = [symbols["hedgehog"], "\U0001f7e9", "\U0001f7ea"]
-	emb = discord.Embed(title=f"{ctx.author.name}'s poll", color=ctx.author.color)
+	emb = discord.Embed(title=f"{ctx.author.name}'s Poll", color=ctx.author.color)
 	emb.set_thumbnail(url=str(ctx.author.avatar_url))
-	emb.add_field(name=title, value=f"{numbers[1]}: {choice1}\n{numbers[2]}: {choice2}")
+	emb.add_field(name=title, value=f"{numbers[1]} {choice1}\n{numbers[2]} {choice2}")
 	msg = await ctx.send(embed=emb)
 	for i in numbers:
 		await msg.add_reaction(i)
