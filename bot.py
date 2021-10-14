@@ -34,8 +34,8 @@ symbols = {"hedgehog" : "\U0001f994", "present" : "\ufe0f"}
 def randomColor():
 	return discord.Colour(randrange(0, 16777215))
 
-async def wait():
-	await sleep(3)
+async def wait(x):
+	await sleep(x)
 
 @tasks.loop(seconds=5)
 async def check():
@@ -188,7 +188,7 @@ async def lastImages(ctx, channel:discord.abc.GuildChannel):
 	if not isinstance(channel, discord.TextChannel):
 		await ctx.send(f"{channel} is not a text channel.", hidden=True)
 		return
-	await ctx.defer(hidden=True)
+	await ctx.defer()
 
 	msg_list = []
 	timestamp = datetime.now()
@@ -222,7 +222,7 @@ async def lastImages(ctx, channel:discord.abc.GuildChannel):
 		return create_actionrow(create_button(style=ButtonStyle.blue, emoji="\u2b05" + symbols["present"], custom_id="l"), create_button(style=ButtonStyle.blue, emoji="\u27a1" + symbols["present"], custom_id="r"), create_button(style=ButtonStyle.URL, label="Go to Message", url=msg_list[0][0]), create_button(style=ButtonStyle.URL, label="Image Link", url=msg_list[0][1]))
 
 	act_row = init_buttons()
-	await wait()
+	await wait(1)
 	await ctx.send(embed=emb, components=[act_row])
 
 	@bot.event
@@ -247,7 +247,7 @@ async def lastImages(ctx, channel:discord.abc.GuildChannel):
 
 @slash.slash(description="React with letters and numbers to a message.", guild_ids=guild_ids, options=[create_option(name="message_id", description="The ID of the message you want to react to.", option_type=3, required=True), create_option(name="text", description="The text to react to the message with", option_type=3, required=True)])
 async def react(ctx, message_id:str, text:str):
-	await ctx.defer(hidden=True)
+	await ctx.defer()
 
 	length = len(text)
 	init = []
@@ -291,7 +291,7 @@ async def react(ctx, message_id:str, text:str):
 		await msg.add_reaction(i)
 	act_row = create_actionrow(create_button(style=ButtonStyle.URL, label="Go to Message", url=msg.jump_url))
 	emb = discord.Embed(title="Reactions added!", description=description, color=colors["main"])
-	await wait()
+	await wait(1)
 	await ctx.send(embed=emb, components=[act_row])
 
 
