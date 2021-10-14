@@ -188,7 +188,7 @@ async def lastImages(ctx, channel:discord.abc.GuildChannel):
 	if not isinstance(channel, discord.TextChannel):
 		await ctx.send(f"{channel} is not a text channel.", hidden=True)
 		return
-	ctx.defer(hidden=True)
+	await ctx.defer(hidden=True)
 
 	msg_list = []
 	timestamp = datetime.now()
@@ -247,7 +247,7 @@ async def lastImages(ctx, channel:discord.abc.GuildChannel):
 
 @slash.slash(description="React with letters and numbers to a message.", guild_ids=guild_ids, options=[create_option(name="message_id", description="The ID of the message you want to react to.", option_type=3, required=True), create_option(name="text", description="The text to react to the message with", option_type=3, required=True)])
 async def react(ctx, message_id:str, text:str):
-	ctx.defer(hidden=True)
+	await ctx.defer(hidden=True)
 
 	length = len(text)
 	init = []
