@@ -318,7 +318,7 @@ async def r(ctx, *para):
 					emojis.append(chr(48+j) + symbols["present"] + "\u20e3")
 		for i in emojis:
 			await msg.add_reaction(i)
-		await ctx.reply(embed=discord.Embed(title="**Go to Message**", url=msg.jump_url, color=colors["main"]))
+		await ctx.reply(embed=discord.Embed(title="**Go to Message**", description=description, url=msg.jump_url, color=colors["main"]))
 	else:
 		await ctx.reply("You need to reply to a message.", mention_author=False)
 
