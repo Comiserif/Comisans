@@ -268,10 +268,7 @@ async def react(ctx, message_id:str, text:str):
 	for i in emojis:
 		await msg.add_reaction(i)
 	act_row = create_actionrow(create_button(style=ButtonStyle.URL, label="Go to Message", url=msg.jump_url))
-	if description != "":
-		emb = discord.Embed(description=description, color=colors["main"])
-	else:
-		emb = None
+	emb = discord.Embed(title="Reactions added!", description=description, color=colors["main"])
 	await ctx.send(embed=emb, components=[act_row])
 
 
@@ -324,10 +321,7 @@ async def r(ctx, *para):
 		for i in emojis:
 			await msg.add_reaction(i)
 		act_row = create_actionrow(create_button(style=ButtonStyle.URL, label="Go to Message", url=msg.jump_url))
-		if description != "":
-			emb = discord.Embed(description=description, color=colors["main"])
-		else:
-			emb = None
+		emb = discord.Embed(title="Reactions added!", description=description, color=colors["main"])
 		await ctx.reply(embed=emb, components=[act_row])
 	else:
 		await ctx.reply("You need to reply to a message.")
