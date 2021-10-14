@@ -270,6 +270,8 @@ async def react(ctx, message_id:str, text:str):
 	act_row = create_actionrow(create_button(style=ButtonStyle.URL, label="Go to Message", url=msg.jump_url))
 	if description != "":
 		emb = discord.Embed(description=description, color=colors["main"])
+	else:
+		emb = None
 	await ctx.send(embed=emb, components=[act_row])
 
 
@@ -324,6 +326,8 @@ async def r(ctx, *para):
 		act_row = create_actionrow(create_button(style=ButtonStyle.URL, label="Go to Message", url=msg.jump_url))
 		if description != "":
 			emb = discord.Embed(description=description, color=colors["main"])
+		else:
+			emb = None
 		await ctx.reply(embed=emb, components=[act_row])
 	else:
 		await ctx.reply("You need to reply to a message.")
