@@ -192,7 +192,7 @@ async def lastImages(ctx, channel:discord.abc.GuildChannel):
 
 	msg_list = []
 	timestamp = datetime.now()
-	msg_num
+	msg_num = 200
 	iters = 1
 	max = 10
 	att_ct = 0
