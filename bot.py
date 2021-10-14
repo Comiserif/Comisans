@@ -267,7 +267,10 @@ async def react(ctx, message_id:str, text:str):
 				emojis.append(chr(48+j) + symbols["present"] + "\u20e3")
 	for i in emojis:
 		await msg.add_reaction(i)
-	await ctx.send(embed=discord.Embed(title="**Go to Message**", description=description, url=msg.jump_url, color=colors["main"]))
+	act_row = create_actionrow(create_button(style=ButtonStyle.URL, label="Go to Message", url=jump_url))
+	if description != "":
+		emb = discord.Embed(description=description, color=colors["main"])
+	await ctx.send(embed=emb, components=[act_row])
 
 
 
@@ -306,7 +309,7 @@ async def r(ctx, *para):
 			except:
 				continue
 		if not in_server:
-			await ctx.reply("[message_id] needs to be an ID of a message in this server.", mention_author=False)
+			await ctx.reply("[message_id] needs to be an ID of a message in this server.")
 			return
 		emojis = []
 		for i in text:
@@ -318,9 +321,12 @@ async def r(ctx, *para):
 					emojis.append(chr(48+j) + symbols["present"] + "\u20e3")
 		for i in emojis:
 			await msg.add_reaction(i)
-		await ctx.reply(embed=discord.Embed(title="**Go to Message**", description=description, url=msg.jump_url, color=colors["main"]))
+		act_row = create_actionrow(create_button(style=ButtonStyle.URL, label="Go to Message", url=jump_url))
+		if description != "":
+			emb = discord.Embed(description=description, color=colors["main"])
+		await ctx.reply(embed=emb, components=[act_row])
 	else:
-		await ctx.reply("You need to reply to a message.", mention_author=False)
+		await ctx.reply("You need to reply to a message.")
 
 
 
