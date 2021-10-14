@@ -267,7 +267,7 @@ async def react(ctx, message_id:str, text:str):
 				emojis.append(chr(48+j) + symbols["present"] + "\u20e3")
 	for i in emojis:
 		await msg.add_reaction(i)
-	act_row = create_actionrow(create_button(style=ButtonStyle.URL, label="Go to Message", url=jump_url))
+	act_row = create_actionrow(create_button(style=ButtonStyle.URL, label="Go to Message", url=msg.jump_url))
 	if description != "":
 		emb = discord.Embed(description=description, color=colors["main"])
 	await ctx.send(embed=emb, components=[act_row])
@@ -321,7 +321,7 @@ async def r(ctx, *para):
 					emojis.append(chr(48+j) + symbols["present"] + "\u20e3")
 		for i in emojis:
 			await msg.add_reaction(i)
-		act_row = create_actionrow(create_button(style=ButtonStyle.URL, label="Go to Message", url=jump_url))
+		act_row = create_actionrow(create_button(style=ButtonStyle.URL, label="Go to Message", url=msg.jump_url))
 		if description != "":
 			emb = discord.Embed(description=description, color=colors["main"])
 		await ctx.reply(embed=emb, components=[act_row])
