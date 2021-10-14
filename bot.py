@@ -255,7 +255,7 @@ async def react(ctx, message_id:str, text:str):
 		except:
 			continue
 	if not in_server:
-		await ctx.send("[message_id] needs to be an ID of a message in this server.", hidden=True)
+		await ctx.send("message_id needs to be an ID of a message in this server.", hidden=True)
 		return
 	emojis = []
 	for i in text:
@@ -276,15 +276,26 @@ async def r(ctx, *para):
 	if para == ():
 		await ctx.reply("You need to input something.", mention_author=False)
 		return
-	
-	phrase = "".join(para).lower()
+
+	text = "".join(para)
+	length = len(text)
+	init = []
+	description = ""
+	for i in text:
+		init.append(i)
+	text = "".join(dict.fromkeys(init)).lower()
+	if length > len(text):
+		description += "— A message cannot have duplicate reactions.\n"
+	if len(text) > 20:
+		description += "— Your message was cut off because a message can only have 20 reactions.\n"
 	banned = []
-	for i in phrase:
-		if not phrase.isalnum():
-			if i not in letters:
-				banned.append(i)
+	for i in text:
+		if not i.isalnum():
+			banned.append(i)
 	for i in banned:
-		phrase = phrase.replace(i, "")
+		text = text.replace(i, "")
+	if length > len(text):
+		description += "— This command only supports letters and numbers.\n"
 	
 	if ctx.message.reference != None:
 		in_server = False
@@ -298,7 +309,7 @@ async def r(ctx, *para):
 			await ctx.reply("[message_id] needs to be an ID of a message in this server.", mention_author=False)
 			return
 		emojis = []
-		for i in phrase:
+		for i in text:
 			for j in range(len(letters)):
 				if letters[j] == i:
 					emojis.append(chr(127462+j))
