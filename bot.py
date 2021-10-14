@@ -2,6 +2,7 @@ from os import environ
 from datetime import datetime, timezone, timedelta
 from random import randrange
 from PIL import Image, ImageFont, ImageDraw, ImageColor
+from asyncio import sleep
 import discord
 from discord.ext import commands, tasks
 from discord_slash import SlashCommand
@@ -32,6 +33,9 @@ symbols = {"hedgehog" : "\U0001f994", "present" : "\ufe0f"}
 
 def randomColor():
 	return discord.Colour(randrange(0, 16777215))
+
+async def wait():
+	await sleep(3)
 
 @tasks.loop(seconds=5)
 async def check():
@@ -184,17 +188,31 @@ async def lastImages(ctx, channel:discord.abc.GuildChannel):
 	if not isinstance(channel, discord.TextChannel):
 		await ctx.send(f"{channel} is not a text channel.", hidden=True)
 		return
+	ctx.defer(hidden=True)
+
 	msg_list = []
+	timestamp = datetime.now()
+	msg_num
+	iters = 1
+	max = 10
 	att_ct = 0
-	async for i in channel.history(limit=500):
-		if i.attachments != []:
-			i.attachments.reverse()
-			for j in i.attachments:
-				if att_ct < 10:
-					att_ct += 1
-					msg_list.append([i.jump_url, j.url, att_ct])
+	searching = True
+	while searching:
+		async for i in channel.history(limit=msg_num*iters, before=timestamp):
+			if i.attachments != []:
+				i.attachments.reverse()
+				for j in i.attachments:
+					if att_ct < 10:
+						att_ct += 1
+						msg_list.append([i.jump_url, j.url, att_ct])
+		if att_ct < 10:
+			iters += 1
+		else:
+			searching = False
+		if iters == max:
+			searching = False
 	if msg_list == []:
-		await ctx.send(f"Could not find any images in the most recent 500 messages.")
+		await ctx.send(f"Could not find any images in the most recent {msg_num*max} messages.")
 		return
 	emb = discord.Embed(title=f"Last Sent Images in #{channel}", description="If an image is not shown here, it is a video.", color=colors["main"])
 	emb.set_image(url=msg_list[0][1])
@@ -204,6 +222,7 @@ async def lastImages(ctx, channel:discord.abc.GuildChannel):
 		return create_actionrow(create_button(style=ButtonStyle.blue, emoji="\u2b05" + symbols["present"], custom_id="l"), create_button(style=ButtonStyle.blue, emoji="\u27a1" + symbols["present"], custom_id="r"), create_button(style=ButtonStyle.URL, label="Go to Message", url=msg_list[0][0]), create_button(style=ButtonStyle.URL, label="Image Link", url=msg_list[0][1]))
 
 	act_row = init_buttons()
+	await wait()
 	await ctx.send(embed=emb, components=[act_row])
 
 	@bot.event
@@ -228,6 +247,8 @@ async def lastImages(ctx, channel:discord.abc.GuildChannel):
 
 @slash.slash(description="React with letters and numbers to a message.", guild_ids=guild_ids, options=[create_option(name="message_id", description="The ID of the message you want to react to.", option_type=3, required=True), create_option(name="text", description="The text to react to the message with", option_type=3, required=True)])
 async def react(ctx, message_id:str, text:str):
+	ctx.defer(hidden=True)
+
 	length = len(text)
 	init = []
 	description = ""
@@ -269,6 +290,7 @@ async def react(ctx, message_id:str, text:str):
 		await msg.add_reaction(i)
 	act_row = create_actionrow(create_button(style=ButtonStyle.URL, label="Go to Message", url=msg.jump_url))
 	emb = discord.Embed(title="Reactions added!", description=description, color=colors["main"])
+	await wait()
 	await ctx.send(embed=emb, components=[act_row])
 
 
