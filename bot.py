@@ -103,7 +103,7 @@ async def on_message(msg):
 
 
 
-@slash.slash(description="Send a message in Comic Sans.", guild_ids=guild_ids, options=[create_option(name="message", description="The message you want to send.", option_type=3, required=True), create_option(name="color", description="The color of the text.", option_type=3, required=False)])
+@slash.slash(description="Send a message in Comic Sans.", guild_ids=guild_ids, options=[create_option(name="text", description="The text you want to send.", option_type=3, required=True), create_option(name="color", description="The color of the text.", option_type=3, required=False)])
 async def sendComic(ctx, message:str, color:str="#f0f"):
 	count = 0
 	lineLen = 36
@@ -185,7 +185,7 @@ async def uncaughtList(ctx):
 
 
 
-@slash.slash(description="Make small text", guild_ids=guild_ids, options=[create_option(name="message", description="The message you want to send.", option_type=3, required=True)])
+@slash.slash(description="Make small text.", guild_ids=guild_ids, options=[create_option(name="text", description="The text you want to send.", option_type=3, required=True)])
 async def smallText(ctx, message:str):
 	banned = []
 	for i in message:
