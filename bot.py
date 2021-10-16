@@ -200,7 +200,7 @@ async def smallText(ctx, message:str):
 
 
 
-@slash.slash(description="Remember the sequence of shapes, then answer the question correctly!", guild_ids=guild_ids)
+@slash.slash(description="Remember the sequence of shapes, then answer the question correctly.", guild_ids=guild_ids)
 async def shapeStatus(ctx):
 	seq = ""
 	prop = {"red":0, "blue":0, "green":0, "hearts":0, "circles":0, "squares":0}
