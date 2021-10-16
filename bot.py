@@ -185,6 +185,21 @@ async def uncaughtList(ctx):
 
 
 
+@slash.slash(description="Make small text", guild_ids=guild_ids, options=[create_option(name="message", description="The message you want to send.", option_type=3, required=True)])
+async def smallText(ctx, message:str):
+	banned = []
+	for i in message:
+		if not i.isalpha() and i != " ":
+			banned.append(i)
+	for i in banned:
+		message = message.replace(i, "")
+	small = "ᵃᵇᶜᵈᵉᶠᵍʰᶦʲᵏˡᵐⁿᵒᵖᑫʳˢᵗᵘᵛʷˣʸᶻ"
+	for i in range(len(small)):
+		message = message.replace(letters[i], small[i])
+	await ctx.send(message)
+
+
+
 @slash.slash(description="Remember the sequence of shapes, then answer the question correctly!", guild_ids=guild_ids)
 async def shapeStatus(ctx):
 	seq = ""
@@ -208,7 +223,7 @@ async def shapeStatus(ctx):
 	for i in range(len(answers)):
 		buttons.append(create_button(style=ButtonStyle.gray, label=str(answers[i]), custom_id=str(answers[i])))
 	msg = await ctx.send(embed=discord.Embed(title="Remember this sequence!", description=seq, color=colors["main"]))
-	await wait(8)
+	await wait(7)
 	await msg.edit(content="Did you remember?", embed=None)
 	await ctx.send(embed=discord.Embed(title=question, colors=colors["main"]), components=[create_actionrow(*buttons)])
 
