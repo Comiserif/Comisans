@@ -1,6 +1,6 @@
 from os import environ
 from datetime import datetime, timezone, timedelta
-from random import randrange
+from random import randrange, choice, sample
 from PIL import Image, ImageFont, ImageDraw, ImageColor
 from asyncio import sleep
 import discord
@@ -23,13 +23,14 @@ letters = "abcdefghijklmnopqrstuvwxyz"
 numbers = "0123456789"
 current = datetime.now(timezone(timedelta(hours=-5))) # 5 = CDT; 6 = CST
 
-logs = []
-mods =	[715327315974029333, 268849207039754241]
-pokemon = [["Wigglytuff"], [], ["Groudon", "Jirachi"], ["Mesprit", "Azelf", "Dialga", "Palkia", "Heatran", "Regigigas", "Giratina", "Darkrai", "Shaymin", "Arceus"], ["Whimsicott", "Cobalion", "Terrakion", "Tornadus", "Thundurus", "Reshiram", "Landorus", "Kyurem"], ["Xerneas", "Diancie"], ["Type: Null", "Tapu Lele", "Tapu Bulu", "Cosmog", "Cosmoem", "Solgaleo", "Buzzwole", "Pheromosa", "Magearna", "Marshadow", "Poipole", "Stakataka", "Blacephalon"], ["Rillaboom", "Orbeetle", "Thievul", "Dubwool", "Drednaw", "Flapple", "Sandaconda", "Cramorant", "Toxel", "Grapploct", "Grimmsnarl", "Obstagoon", "Perrserker", "Cursola", "Sirfetch'd", "Mr. Rime", "Runerigus", "Stonjourner", "Arctozolt", "Arctovish", "Dragapult", "Zacian", "Zamazenta", "Kubfu", "Urshifu", "Zarude", "Regieleki", "Regidrago", "Glastrier", "Spectrier", "Calyrex"]]
-shiny = [["Gastly", 715327315974029333], ["Beldum", 409205134028046346], ["Riolu", 345659592736243714], ["Sneasel", 441046114792243215], ["Rowlet", 542542697488187403], ["Cubchoo", 268849207039754241], ["Porygon", 263440201118908418], ["Mudkip", 821456684462637127]]
-shiny.sort()
 colors = {"main" : 0x5865f2, "poke" : 0xfe9ac9}
 symbols = {"hedgehog" : "\U0001f994", "present" : "\ufe0f"}
+logs = []
+mods =	[715327315974029333, 268849207039754241]
+pokemon = [["Wigglytuff"], [], ["Groudon", "Jirachi"], ["Mesprit", "Azelf", "Dialga", "Palkia", "Heatran", "Regigigas", "Giratina", "Darkrai", "Shaymin", "Arceus"], ["Whimsicott", "Cobalion", "Terrakion", "Tornadus", "Thundurus", "Reshiram", "Landorus", "Kyurem"], ["Xerneas", "Diancie"], ["Type: Null", "Tapu Lele", "Tapu Bulu", "Cosmog", "Cosmoem", "Solgaleo", "Buzzwole", "Pheromosa", "Magearna", "Marshadow", "Poipole", "Stakataka", "Blacephalon"], ["Rillaboom", "Orbeetle", "Dubwool", "Drednaw", "Flapple", "Sandaconda", "Cramorant", "Toxel", "Grapploct", "Grimmsnarl", "Obstagoon", "Perrserker", "Cursola", "Sirfetch'd", "Mr. Rime", "Runerigus", "Stonjourner", "Arctozolt", "Dragapult", "Zacian", "Zamazenta", "Kubfu", "Urshifu", "Zarude", "Regieleki", "Regidrago", "Glastrier", "Spectrier", "Calyrex"]]
+shapes = [["\u2764" + symbols["present"], "\U0001f499", "\U0001f49a"], ["\U0001f534", "\U0001f535", "\U0001f7e2"], ["\U0001f7e5", "\U0001f7e6", "\U0001f7e9"]] # red blue green heart circle square
+shiny = [["Gastly", 715327315974029333], ["Beldum", 409205134028046346], ["Riolu", 345659592736243714], ["Sneasel", 441046114792243215], ["Rowlet", 542542697488187403], ["Cubchoo", 268849207039754241], ["Porygon", 263440201118908418], ["Mudkip", 821456684462637127]]
+shiny.sort()
 
 def randomColor():
 	return discord.Colour(randrange(0, 16777215))
@@ -63,9 +64,10 @@ async def on_ready():
 #	check.start()
 
 	channel = discord.utils.get(bot.get_all_channels(), name="local-retards")
-#	msg = await channel.send(content="test", file=None)
-#	msg = await channel.fetch_message(894412905204826112)
-#	await msg.delete()
+#	msg = await channel.send(content="this just screams repetitive and i can't fix it", file=discord.File("a.png"))
+#	for i in [899020696544477244, 899020698931060766]:
+#		msg = await channel.fetch_message(i)
+#		await msg.delete()
 
 guild_ids = [645111346274500614, 409325808864460800]
 
@@ -183,22 +185,73 @@ async def uncaughtList(ctx):
 
 
 
+@slash.slash(description="Remember the sequence of shapes, then answer the question correctly!", guild_ids=guild_ids)
+async def shapeStatus(ctx):
+	seq = ""
+	prop = {"red":0, "blue":0, "green":0, "hearts":0, "circles":0, "squares":0}
+	for i in range(6):
+		shape = randrange(3)
+		color = randrange(3)
+		seq += shapes[shape][color]
+		prop["hearts" if shape == 0 else "squares" if shape % 2 == 0 else "circles"] += 1
+		prop["red" if color == 0 else "green" if color % 2 == 0 else "blue"] += 1
+	subject = choice(list(prop.keys()))
+	quest_type = randrange(3)
+	question = f"How many shapes were {subject}?"
+	answer = prop[subject]
+	possible = [0, 1, 2, 3, 4, 5, 6]
+	possible.remove(answer)
+	answers = sample(possible, k=3)
+	answers.append(answer)
+	answers.sort()
+	buttons = []
+	for i in range(len(answers)):
+		buttons.append(create_button(style=ButtonStyle.gray, label=str(answers[i]), custom_id=str(answers[i])))
+	msg = await ctx.send(embed=discord.Embed(title="Remember this sequence!", description=seq, color=colors["main"]))
+	await wait(8)
+	await msg.edit(content="Did you remember?", embed=None)
+	await ctx.send(embed=discord.Embed(title=question, colors=colors["main"]), components=[create_actionrow(*buttons)])
+
+	@bot.event
+	async def on_component(comctx:ComponentContext):
+		if ctx.author_id != comctx.author_id:
+			await comctx.send("You cannot choose an option because you did not run the command.", hidden=True)
+			return
+
+		id = int(comctx.custom_id)
+		buttons = []
+		if id == answer:
+			for i in answers:
+				buttons.append(create_button(style=ButtonStyle.green if i == id else ButtonStyle.gray, label=str(i), disabled=True))
+		else:
+			for i in answers:
+				buttons.append(create_button(style=ButtonStyle.red if i == id else ButtonStyle.gray if i != answer else ButtonStyle.green, label=str(i), disabled=True))
+
+		await comctx.edit_origin(embed=discord.Embed(title=question, description="Correct!" if id == answer else "Sorry, that's incorrect!", color=0x57f287 if id == answer else 0xed4245), components=[create_actionrow(*buttons)])
+
+
+
 @slash.slash(description="Find the most recent 10 images sent in a channel.", guild_ids=guild_ids, options=[create_option(name="channel", description="The channel to get the images from.", option_type=7, required=True)])
 async def lastImages(ctx, channel:discord.abc.GuildChannel):
 	if not isinstance(channel, discord.TextChannel):
 		await ctx.send(f"{channel} is not a text channel.", hidden=True)
 		return
-	await ctx.defer()
+
+	msg = await ctx.send("Searching for images...")
 
 	msg_list = []
-	timestamp = datetime.now()
+	timestamp = datetime.utcnow()
 	msg_num = 200
 	iters = 1
 	max = 10
 	att_ct = 0
 	searching = True
 	while searching:
-		async for i in channel.history(limit=msg_num*iters, before=timestamp):
+		msg_ct = 0
+		async for i in channel.history(limit=msg_num, before=timestamp):
+			msg_ct += 1
+			if msg_ct == msg_num:
+				timestamp = i.created_at
 			if i.attachments != []:
 				i.attachments.reverse()
 				for j in i.attachments:
@@ -211,9 +264,11 @@ async def lastImages(ctx, channel:discord.abc.GuildChannel):
 			searching = False
 		if iters == max:
 			searching = False
+		await msg.edit(content=f"Searched through {msg_num*iters} messages...")
 	if msg_list == []:
-		await ctx.send(f"Could not find any images in the most recent {msg_num*max} messages.")
+		await msg.edit(content=f"Could not find any images in the most recent {msg_num*max} messages.")
 		return
+	await msg.edit(content="Images found!")
 	emb = discord.Embed(title=f"Last Sent Images in #{channel}", description="If an image is not shown here, it is a video.", color=colors["main"])
 	emb.set_image(url=msg_list[0][1])
 	emb.set_footer(text=f"1/{len(msg_list)}")
@@ -222,7 +277,6 @@ async def lastImages(ctx, channel:discord.abc.GuildChannel):
 		return create_actionrow(create_button(style=ButtonStyle.blue, emoji="\u2b05" + symbols["present"], custom_id="l"), create_button(style=ButtonStyle.blue, emoji="\u27a1" + symbols["present"], custom_id="r"), create_button(style=ButtonStyle.URL, label="Go to Message", url=msg_list[0][0]), create_button(style=ButtonStyle.URL, label="Image Link", url=msg_list[0][1]))
 
 	act_row = init_buttons()
-	await wait(1)
 	await ctx.send(embed=emb, components=[act_row])
 
 	@bot.event
