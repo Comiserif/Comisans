@@ -115,7 +115,7 @@ async def sendComic(ctx, text:str, color:str="#f0f"):
 		await ctx.send(f"\"{color}\" is not a color I recognize.", hidden=True)
 		return
 		
-	for i in message:
+	for i in text:
 		msgList.append(i)
 	for i in range(len(msgList)):
 		if msgList[i] == "\n":
@@ -130,14 +130,14 @@ async def sendComic(ctx, text:str, color:str="#f0f"):
 		count += 1
 	for i in breaks:
 		msgList.insert(i, "\n")
-	message = "".join(msgList)
+	text = "".join(msgList)
 	
 	base = Image.open("base.png")
-	size = ImageDraw.Draw(base).multiline_textbbox((0, 0), message, font)
+	size = ImageDraw.Draw(base).multiline_textbbox((0, 0), text, font)
 	base = base.resize((size[2], size[3]))
 	with base as im:
 		draw = ImageDraw.Draw(im)
-		draw.text((0, 0), message, clr, font)
+		draw.text((0, 0), text, clr, font)
 		im.save("final.png")
 	await ctx.send(file=discord.File("final.png"))
 
@@ -188,15 +188,15 @@ async def uncaughtList(ctx):
 @slash.slash(description="Make small text.", guild_ids=guild_ids, options=[create_option(name="text", description="The text you want to send.", option_type=3, required=True)])
 async def smallText(ctx, text:str):
 	banned = []
-	for i in message:
+	for i in text:
 		if not i.isalpha() and i != " ":
 			banned.append(i)
 	for i in banned:
-		message = message.replace(i, "")
+		text = text.replace(i, "")
 	small = "ᵃᵇᶜᵈᵉᶠᵍʰᶦʲᵏˡᵐⁿᵒᵖᑫʳˢᵗᵘᵛʷˣʸᶻ"
 	for i in range(len(small)):
-		message = message.replace(letters[i], small[i])
-	await ctx.send(message)
+		text = text.replace(letters[i], small[i])
+	await ctx.send(text)
 
 
 
