@@ -27,9 +27,9 @@ colors = {"main" : 0x5865f2, "poke" : 0xfe9ac9}
 symbols = {"hedgehog" : "\U0001f994", "present" : "\ufe0f"}
 logs = []
 mods =	[715327315974029333, 268849207039754241]
-pokemon = [["Wigglytuff"], [], ["Groudon", "Jirachi"], ["Mesprit", "Azelf", "Dialga", "Palkia", "Heatran", "Regigigas", "Giratina", "Darkrai", "Shaymin", "Arceus"], ["Whimsicott", "Cobalion", "Terrakion", "Tornadus", "Thundurus", "Reshiram", "Landorus", "Kyurem"], ["Xerneas", "Diancie"], ["Type: Null", "Tapu Lele", "Tapu Bulu", "Cosmog", "Cosmoem", "Solgaleo", "Buzzwole", "Pheromosa", "Magearna", "Marshadow", "Poipole", "Stakataka", "Blacephalon"], ["Rillaboom", "Orbeetle", "Dubwool", "Drednaw", "Flapple", "Sandaconda", "Cramorant", "Toxel", "Grapploct", "Grimmsnarl", "Obstagoon", "Perrserker", "Cursola", "Sirfetch'd", "Mr. Rime", "Runerigus", "Stonjourner", "Arctozolt", "Dragapult", "Zacian", "Zamazenta", "Kubfu", "Urshifu", "Zarude", "Regieleki", "Regidrago", "Glastrier", "Spectrier", "Calyrex"]]
+pokemon = [["Wigglytuff"], [], ["Groudon", "Jirachi"], ["Mesprit", "Azelf", "Dialga", "Palkia", "Heatran", "Regigigas", "Giratina", "Darkrai", "Shaymin", "Arceus"], ["Whimsicott", "Cobalion", "Terrakion", "Tornadus", "Thundurus", "Reshiram", "Landorus", "Kyurem"], ["Xerneas", "Diancie"], ["Type: Null", "Tapu Lele", "Tapu Bulu", "Cosmog", "Cosmoem", "Solgaleo", "Buzzwole", "Pheromosa", "Magearna", "Marshadow", "Poipole", "Stakataka", "Blacephalon"], ["Rillaboom", "Orbeetle", "Dubwool", "Drednaw", "Flapple", "Sandaconda", "Cramorant", "Grapploct", "Grimmsnarl", "Obstagoon", "Perrserker", "Cursola", "Sirfetch'd", "Mr. Rime", "Runerigus", "Stonjourner", "Arctozolt", "Dragapult", "Zacian", "Zamazenta", "Kubfu", "Urshifu", "Zarude", "Regieleki", "Regidrago", "Glastrier", "Spectrier", "Calyrex"]]
 shapes = [["\u2764" + symbols["present"], "\U0001f499", "\U0001f49a"], ["\U0001f534", "\U0001f535", "\U0001f7e2"], ["\U0001f7e5", "\U0001f7e6", "\U0001f7e9"]] # red blue green heart circle square
-shiny = [["Gastly", 715327315974029333], ["Beldum", 409205134028046346], ["Riolu", 345659592736243714], ["Sneasel", 441046114792243215], ["Rowlet", 542542697488187403], ["Cubchoo", 268849207039754241], ["Porygon", 263440201118908418], ["Mudkip", 821456684462637127]]
+shiny = [["Gastly", 715327315974029333], ["Beldum", 409205134028046346], ["Riolu", 345659592736243714], ["Sneasel", 441046114792243215], ["Dreepy", 542542697488187403], ["Cubchoo", 268849207039754241], ["Porygon", 263440201118908418], ["Snorlax", 821456684462637127], ["Ralts", 776134910548639828]]
 shiny.sort()
 
 def randomColor():
@@ -104,7 +104,7 @@ async def on_message(msg):
 
 
 @slash.slash(description="Send a message in Comic Sans.", guild_ids=guild_ids, options=[create_option(name="text", description="The text you want to send.", option_type=3, required=True), create_option(name="color", description="The color of the text.", option_type=3, required=False)])
-async def sendComic(ctx, message:str, color:str="#f0f"):
+async def sendComic(ctx, text:str, color:str="#f0f"):
 	count = 0
 	lineLen = 36
 	msgList = []
@@ -186,7 +186,7 @@ async def uncaughtList(ctx):
 
 
 @slash.slash(description="Make small text.", guild_ids=guild_ids, options=[create_option(name="text", description="The text you want to send.", option_type=3, required=True)])
-async def smallText(ctx, message:str):
+async def smallText(ctx, text:str):
 	banned = []
 	for i in message:
 		if not i.isalpha() and i != " ":
