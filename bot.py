@@ -128,6 +128,7 @@ async def sendComic(ctx, text:str, color:str="#f0f"):
 				breaks.append(i)
 				count = 0
 		count += 1
+	breaks.reverse()
 	for i in breaks:
 		msgList.insert(i, "\n")
 	text = "".join(msgList)
@@ -214,16 +215,18 @@ async def shapeStatus(ctx):
 	quest_type = randrange(3)
 	question = f"How many shapes were {subject}?"
 	answer = prop[subject]
-	possible = [0, 1, 2, 3, 4, 5, 6]
-	possible.remove(answer)
-	answers = sample(possible, k=3)
-	answers.append(answer)
-	answers.sort()
+	precede = [0, 1, 2, 3]
+	for i in range(max(3 - answer, 0)):
+		precede.pop()
+	start = choice(precede)
+	answers = []
+	for i in range(4):
+		answers.append(answer - start + i)
 	buttons = []
 	for i in range(len(answers)):
 		buttons.append(create_button(style=ButtonStyle.gray, label=str(answers[i]), custom_id=str(answers[i])))
 	msg = await ctx.send(embed=discord.Embed(title="Remember this sequence!", description=seq, color=colors["main"]))
-	await wait(7)
+	await wait(6)
 	await msg.edit(content="Did you remember?", embed=None)
 	await ctx.send(embed=discord.Embed(title=question, colors=colors["main"]), components=[create_actionrow(*buttons)])
 
