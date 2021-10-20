@@ -207,7 +207,7 @@ async def randomChoice(ctx, one:str, two:str, three:str="", four:str="", five:st
 	for i in [one, two, three, four, five, six, seven, eight, nine, ten]:
 		if i != "":
 			choices.append(i)
-	await ctx.send(embed=discord.Embed(title="I choose...", description=f"{choice(choices)}", color=colors["blurple"]))
+	await ctx.send(embed=discord.Embed(title=choice(choices), color=colors["blurple"]))
 
 
 
