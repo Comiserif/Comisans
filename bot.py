@@ -23,7 +23,7 @@ letters = "abcdefghijklmnopqrstuvwxyz"
 numbers = "0123456789"
 current = datetime.now(timezone(timedelta(hours=-5))) # 5 = CDT; 6 = CST
 
-colors = {"main" : 0x5865f2, "poke" : 0xfe9ac9}
+colors = {"blurple" : 0x5865f2, "poke" : 0xfe9ac9}
 symbols = {"hedgehog" : "\U0001f994", "present" : "\ufe0f"}
 logs = []
 mods =	[715327315974029333, 268849207039754241]
@@ -201,6 +201,16 @@ async def smallText(ctx, text:str):
 
 
 
+@slash.slash(description="Randomly choose between a number of options.", guild_ids=guild_ids, options=[create_option(name="one", description="The first option to choose from.", option_type=3, required=True), create_option(name="two", description="The second option to choose from.", option_type=3, required=True), create_option(name="three", description="A third option to choose from.", option_type=3, required=False), create_option(name="four", description="A fourth option to choose from.", option_type=3, required=False), create_option(name="five", description="A fifth option to choose from.", option_type=3, required=False), create_option(name="six", description="A sixth option to choose from.", option_type=3, required=False), create_option(name="seven", description="A seventh option to choose from.", option_type=3, required=False), create_option(name="eight", description="An eighth option to choose from.", option_type=3, required=False), create_option(name="nine", description="A ninth option to choose from.", option_type=3, required=False), create_option(name="ten", description="A tenth option to choose from.", option_type=3, required=False)])
+async def randomChoice(ctx, one:str, two:str, three:str="", four:str="", five:str="", six:str="", seven:str="", eight:str="", nine:str="", ten:str=""):
+	choices = []
+	for i in [one, two, three, four, five, six, seven, eight, nine, ten]:
+		if i != "":
+			choices.append(i)
+	await ctx.send(embed=discord.Embed(title="I choose...", description=f"{choice(choices)}", color=colors["blurple"]))
+
+
+
 @slash.slash(description="Remember the sequence of shapes, then answer the question correctly.", guild_ids=guild_ids)
 async def shapeStatus(ctx):
 	seq = ""
@@ -225,10 +235,10 @@ async def shapeStatus(ctx):
 	buttons = []
 	for i in range(len(answers)):
 		buttons.append(create_button(style=ButtonStyle.gray, label=str(answers[i]), custom_id=str(answers[i])))
-	msg = await ctx.send(embed=discord.Embed(title="Remember this sequence!", description=seq, color=colors["main"]))
+	msg = await ctx.send(embed=discord.Embed(title="Remember this sequence!", description=seq, color=colors["blurple"]))
 	await wait(6)
 	await msg.edit(content="Did you remember?", embed=None)
-	await ctx.send(embed=discord.Embed(title=question, colors=colors["main"]), components=[create_actionrow(*buttons)])
+	await ctx.send(embed=discord.Embed(title=question, colors=colors["blurple"]), components=[create_actionrow(*buttons)])
 
 	@bot.event
 	async def on_component(comctx:ComponentContext):
@@ -287,7 +297,7 @@ async def lastImages(ctx, channel:discord.abc.GuildChannel):
 		await msg.edit(content=f"Could not find any images in the most recent {msg_num*max} messages.")
 		return
 	await msg.edit(content="Images found!")
-	emb = discord.Embed(title=f"Last Sent Images in #{channel}", description="If an image is not shown here, it is a video.", color=colors["main"])
+	emb = discord.Embed(title=f"Last Sent Images in #{channel}", description="If an image is not shown here, it is a video.", color=colors["blurple"])
 	emb.set_image(url=msg_list[0][1])
 	emb.set_footer(text=f"1/{len(msg_list)}")
 
@@ -362,7 +372,7 @@ async def react(ctx, message_id:str, text:str):
 	for i in emojis:
 		await msg.add_reaction(i)
 	act_row = create_actionrow(create_button(style=ButtonStyle.URL, label="Go to Message", url=msg.jump_url))
-	emb = discord.Embed(title="Reactions added!", description=description, color=colors["main"])
+	emb = discord.Embed(title="Reactions added!", description=description, color=colors["blurple"])
 	await wait(1)
 	await ctx.send(embed=emb, components=[act_row])
 
@@ -417,7 +427,7 @@ async def r(ctx, *para):
 		for i in emojis:
 			await msg.add_reaction(i)
 		act_row = create_actionrow(create_button(style=ButtonStyle.URL, label="Go to Message", url=msg.jump_url))
-		emb = discord.Embed(title="Reactions added!", description=description, color=colors["main"])
+		emb = discord.Embed(title="Reactions added!", description=description, color=colors["blurple"])
 		await ctx.reply(embed=emb, components=[act_row])
 	else:
 		await ctx.reply("You need to reply to a message.")
@@ -427,7 +437,7 @@ async def r(ctx, *para):
 @bot.command(name="h")
 async def listCommands(ctx):
 	await ctx.trigger_typing()
-	emb = discord.Embed(title="Commands", color=colors["main"])
+	emb = discord.Embed(title="Commands", color=colors["blurple"])
 	pre = bot.command_prefix
 	commands = [["r", "Adds reactions to the message replied to."], ["h", "Displays this message."]]
 	for i in commands:
