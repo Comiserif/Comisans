@@ -18,6 +18,9 @@ bot = commands.Bot(command_prefix=";", case_insensitive=True, owner_id=409205134
 bot.remove_command("help")
 slash = SlashCommand(bot, sync_commands=True)
 
+guild = ""
+channel = ""
+author = ""
 font = ImageFont.truetype("comicsansms3.ttf", 48)
 letters = "abcdefghijklmnopqrstuvwxyz"
 numbers = "0123456789"
