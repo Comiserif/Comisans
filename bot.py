@@ -83,7 +83,7 @@ async def on_message(msg):
 	content = msg.content.lower()
 	if ("clara " in content or content.endswith("clara")) and msg.author.id not in mods:
 		await msg.channel.send(f"<{msg.author.name}> {msg.content}")
-	if "RUINED IT" in content and msg.author.id == 510016054391734273:
+	if "ruined it at" in content and msg.author.id == 510016054391734273:
 		await msg.channel.send("good job stinky")
 
 	for i in msg.embeds:
