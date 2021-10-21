@@ -76,6 +76,7 @@ guild_ids = [645111346274500614, 409325808864460800]
 @bot.event
 async def on_message(msg):
 	await bot.process_commands(msg)
+	consolePrint(msg)
 
 	if msg.author.id == bot.user.id:
 		return
@@ -102,6 +103,41 @@ async def on_message(msg):
 	if msg.channel.id == 745167500701990982:
 		with open("brazil.txt", "a") as f:
 			f.write(f"{msg.author.name}\n\t{msg.clean_content}\n")
+
+
+
+def consolePrint(message):
+	global guild
+	global channel
+	global author
+	with open("console.txt", "a") as f:
+		g = message.guild.name
+		c = message.channel.name
+		a = message.author.display_name
+		diffGuild = not guild == g
+		diffChannel = not channel == c
+		diffAuthor = not author == a
+		if diffGuild:
+			f.write("\n\n" + g + "\n")
+		if diffGuild or diffChannel:
+			f.write("\n\t" + c + "\n")
+		if diffGuild or diffChannel or diffAuthor:
+			f.write("\t\t" + a)
+		f.write("\n")
+		if message.clean_content != "":
+			content = message.clean_content
+			content = content.replace("\n", "\n\t\t\t")
+			f.write("\t\t\t" + content + "\n")
+		for i in message.attachments:
+			f.write("\t\t\t" + i.url + "\n")
+		for i in message.embeds:
+			if i.title != discord.Embed.Empty and "has appeared!" in i.title:
+				f.write("\t\t\t" + i.image.url + "\n")
+			else:
+				f.write("\t\t\tdiscord.Embed\n")
+		guild = g
+		channel = c
+		author = a
 
 
 
