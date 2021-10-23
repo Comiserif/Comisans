@@ -57,7 +57,7 @@ async def on_connect():
 async def on_ready():
 	global poketwo
 	print("Hello World!")
-	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="Hololive Council | ;h"))
+	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="the V-Shojo SMP | ;h"))
 	poketwo = await bot.fetch_user(716390085896962058)
 	poketwo = poketwo.avatar_url
 
@@ -263,7 +263,6 @@ async def shapeStatus(ctx):
 		prop["hearts" if shape == 0 else "squares" if shape % 2 == 0 else "circles"] += 1
 		prop["red" if color == 0 else "green" if color % 2 == 0 else "blue"] += 1
 	subject = choice(list(prop.keys()))
-	quest_type = randrange(3)
 	question = f"How many shapes were {subject}?"
 	answer = prop[subject]
 	precede = [0, 1, 2, 3]
