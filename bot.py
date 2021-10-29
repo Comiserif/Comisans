@@ -72,6 +72,12 @@ async def on_ready():
 #		msg = await channel.fetch_message(i)
 #		await msg.delete()
 
+	channel = discord.utils.get(bot.get_all_channels(), name="local-retards")
+	days = str((datetime(2022, 1, 9) - current).days)
+	if environ["days"] != days:
+		environ["days"] = days
+	await channel.send(f"({days} remain until Attack on Titan Season 4 Part 2 comes out)")
+
 guild_ids = [645111346274500614, 409325808864460800]
 
 
