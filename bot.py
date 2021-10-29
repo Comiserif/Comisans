@@ -24,7 +24,8 @@ author = ""
 font = ImageFont.truetype("comicsansms3.ttf", 48)
 letters = "abcdefghijklmnopqrstuvwxyz"
 numbers = "0123456789"
-current = datetime.now(timezone(timedelta(hours=-5))) # 5 = CDT; 6 = CST
+offset = 5 # 5 = CDT, 6 = CST
+current = datetime.now(timezone(timedelta(hours=-offset)))
 
 colors = {"blurple" : 0x5865f2, "poke" : 0xfe9ac9}
 symbols = {"hedgehog" : "\U0001f994", "present" : "\ufe0f"}
@@ -73,7 +74,7 @@ async def on_ready():
 #		await msg.delete()
 
 	channel = discord.utils.get(bot.get_all_channels(), name="local-retards")
-	days = str((datetime(2022, 1, 9) - current).days)
+	days = str((datetime(2022, 1, 9, offset) - datetime.utcnow()).days)
 	if environ["days"] != days:
 		environ["days"] = days
 	await channel.send(f"({days} remain until Attack on Titan Season 4 Part 2 comes out)")
