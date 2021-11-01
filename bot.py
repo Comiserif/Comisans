@@ -68,14 +68,14 @@ async def on_ready():
 #	check.start()
 
 	channel = discord.utils.get(bot.get_all_channels(), name="local-retards")
-#	msg = await channel.send(content="this just screams repetitive and i can't fix it", file=discord.File("a.png"))
-#	for i in [899020696544477244, 899020698931060766]:
-#		msg = await channel.fetch_message(i)
-#		await msg.delete()
+#	msg = await channel.send(content="i logged onto github ", file=discord.File("a.png"))
+	for i in [904582203734888520]:
+		msg = await channel.fetch_message(i)
+		await msg.reply("i logged onto github and updated comisans' code just to say what the fuck")
 
 	channel = discord.utils.get(bot.get_all_channels(), name="local-retards")
 	days = str((datetime(2022, 1, 9, offset) - datetime.utcnow()).days + 1)
-	await channel.send(embed=discord.Embed(title=f"{days} days remain until Attack on Titan Season 4 Part 2 comes out.", color=0xff0000))
+#	await channel.send(embed=discord.Embed(title=f"{days} days remain until Attack on Titan Season 4 Part 2 comes out.", color=0xff0000))
 
 guild_ids = [645111346274500614, 409325808864460800]
 
