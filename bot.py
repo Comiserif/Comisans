@@ -29,9 +29,9 @@ current = datetime.now(timezone(timedelta(hours=-offset)))
 
 colors = {"blurple" : 0x5865f2, "poke" : 0xfe9ac9}
 symbols = {"hedgehog" : "\U0001f994", "present" : "\ufe0f"}
-logs = []
+logs = {}
 mods =	[715327315974029333, 268849207039754241]
-pokemon = [[], [], [], ["Mesprit", "Azelf", "Dialga", "Palkia", "Heatran", "Regigigas", "Giratina", "Darkrai", "Shaymin"], ["Whimsicott", "Cobalion", "Terrakion", "Tornadus", "Thundurus", "Reshiram", "Landorus", "Kyurem"], ["Xerneas", "Diancie"], ["Type: Null", "Tapu Lele", "Cosmog", "Cosmoem", "Solgaleo", "Buzzwole", "Pheromosa", "Magearna", "Marshadow", "Poipole", "Stakataka", "Blacephalon"], ["Rillaboom", "Orbeetle", "Dubwool", "Drednaw", "Flapple", "Sandaconda", "Cramorant", "Grapploct", "Grimmsnarl", "Obstagoon", "Perrserker", "Cursola", "Sirfetch'd", "Mr. Rime", "Runerigus", "Stonjourner", "Arctozolt", "Dragapult", "Zacian", "Zamazenta", "Kubfu", "Urshifu", "Zarude", "Regieleki", "Regidrago", "Glastrier", "Spectrier", "Calyrex"]]
+pokemon = [[], [], [], ["Mesprit", "Azelf", "Dialga", "Palkia", "Heatran", "Regigigas", "Giratina", "Darkrai", "Shaymin"], ["Whimsicott", "Cobalion", "Terrakion", "Tornadus", "Thundurus", "Reshiram", "Landorus", "Kyurem"], ["Xerneas", "Diancie"], ["Type: Null", "Tapu Lele", "Cosmog", "Cosmoem", "Solgaleo", "Buzzwole", "Pheromosa", "Magearna", "Marshadow", "Poipole", "Stakataka", "Blacephalon"], ["Rillaboom", "Orbeetle", "Dubwool", "Drednaw", "Flapple", "Sandaconda", "Cramorant", "Grapploct", "Grimmsnarl", "Obstagoon", "Perrserker", "Cursola", "Sirfetch'd", "Mr. Rime", "Runerigus", "Arctozolt", "Dragapult", "Zacian", "Zamazenta", "Kubfu", "Urshifu", "Zarude", "Regieleki", "Regidrago", "Glastrier", "Spectrier", "Calyrex"]]
 shapes = [["\u2764" + symbols["present"], "\U0001f499", "\U0001f49a"], ["\U0001f534", "\U0001f535", "\U0001f7e2"], ["\U0001f7e5", "\U0001f7e6", "\U0001f7e9"]] # red blue green heart circle square
 shiny = [["Gastly", 715327315974029333], ["Beldum", 409205134028046346], ["Riolu", 345659592736243714], ["Sneasel", 441046114792243215], ["Dreepy", 542542697488187403], ["Cubchoo", 268849207039754241], ["Porygon", 263440201118908418], ["Snorlax", 821456684462637127], ["Ralts", 776134910548639828]]
 shiny.sort()
@@ -84,7 +84,19 @@ guild_ids = [645111346274500614, 409325808864460800]
 @bot.event
 async def on_message(msg):
 	await bot.process_commands(msg)
-	consolePrint(msg)
+
+	try:
+		temp = logs[f"{msg.channel.id}"]
+		newLogs = True
+	except:
+		newLogs = False
+
+	if newLogs:
+		if len(temp) > 9:
+			temp.pop(0)
+		temp.append(f"__{msg.author}__\n{msg.clean_content if msg.clean_content != '' else '`No message content`'}\n{msg.attachments if msg.attachments != [] else '`No attachments`'}")
+	else:
+		logs[f"{msg.channel.id}"] = []
 
 	if msg.author.id == bot.user.id:
 		return
@@ -93,7 +105,7 @@ async def on_message(msg):
 	if ("clara " in content or content.endswith("clara")) and msg.author.id not in mods:
 		await msg.channel.send(f"<{msg.author.name}> {msg.content}")
 	if "ruined it at" in content and msg.author.id == 510016054391734273:
-		await msg.channel.send("good job stinky")
+		await msg.channel.send("__***good job stinky***__")
 
 	for i in msg.embeds:
 		if i.author.name != discord.Embed.Empty and "has been warned" in i.author.name:
@@ -108,44 +120,6 @@ async def on_message(msg):
 				brazil = True
 	if brazil:
 		await msg.reply("https://media.discordapp.net/attachments/690665832350613545/831319542151118858/image0.gif")
-	if msg.channel.id == 745167500701990982:
-		with open("brazil.txt", "a") as f:
-			f.write(f"{msg.author.name}\n\t{msg.clean_content}\n")
-
-
-
-def consolePrint(message):
-	global guild
-	global channel
-	global author
-	with open("console.txt", "a") as f:
-		g = message.guild.name
-		c = message.channel.name
-		a = message.author.display_name
-		diffGuild = not guild == g
-		diffChannel = not channel == c
-		diffAuthor = not author == a
-		if diffGuild:
-			f.write("\n\n" + g + "\n")
-		if diffGuild or diffChannel:
-			f.write("\n\t" + c + "\n")
-		if diffGuild or diffChannel or diffAuthor:
-			f.write("\t\t" + a)
-		f.write("\n")
-		if message.clean_content != "":
-			content = message.clean_content
-			content = content.replace("\n", "\n\t\t\t")
-			f.write("\t\t\t" + content + "\n")
-		for i in message.attachments:
-			f.write("\t\t\t" + i.url + "\n")
-		for i in message.embeds:
-			if i.title != discord.Embed.Empty and "has appeared!" in i.title:
-				f.write("\t\t\t" + i.image.url + "\n")
-			else:
-				f.write("\t\t\tdiscord.Embed\n")
-		guild = g
-		channel = c
-		author = a
 
 
 
@@ -206,7 +180,7 @@ async def poll(ctx, title:str, choice1:str, choice2:str):
 async def shinyList(ctx):
 	description = ""
 	for i in shiny:
-		description += f"```{i[0]}:``` {bot.get_user(i[1])}\n\n"
+		description += f"`{i[0]}:` {bot.get_user(i[1])}\n"
 	emb = discord.Embed(title="Pokétwo Shiny Hunt List", description=description, color=colors["poke"])
 	emb.set_thumbnail(url=poketwo)
 	await ctx.send(embed=emb)
@@ -304,6 +278,31 @@ async def shapeStatus(ctx):
 
 
 
+@slash.slash(description="Retrieve the last 10 messages of a channel.", guild_ids=guild_ids, options=[create_option(name="channel", description="The channel to get the messages from.", option_type=7, required=True)])
+async def snipe(ctx, channel:discord.abc.GuildChannel):
+	if not isinstance(channel, discord.TextChannel):
+		print(logs)
+		await ctx.send(f"{channel} is not a text channel.", hidden=True)
+		return
+
+	try:
+		temp = logs[f"{channel.id}"]
+		logExists = True
+	except:
+		logExists = False
+
+	if logExists:
+		description = ""
+		for i in temp:
+			description += f"{i}\n\n"
+	else:
+		await ctx.send(f"I do not have messages logged for {channel}.", hidden=True)
+		return
+
+	await ctx.send(embed=discord.Embed(title=f"Last Sent Messages in #{channel}", description=description, color=colors["blurple"]))
+
+
+
 @slash.slash(description="Find the most recent 10 images sent in a channel.", guild_ids=guild_ids, options=[create_option(name="channel", description="The channel to get the images from.", option_type=7, required=True)])
 async def lastImages(ctx, channel:discord.abc.GuildChannel):
 	if not isinstance(channel, discord.TextChannel):
@@ -328,7 +327,7 @@ async def lastImages(ctx, channel:discord.abc.GuildChannel):
 			if i.attachments != []:
 				i.attachments.reverse()
 				for j in i.attachments:
-					if att_ct < 10:
+					if "image" in j.content_type and att_ct < 10:
 						att_ct += 1
 						msg_list.append([i.jump_url, j.url, att_ct])
 		if att_ct < 10:
@@ -342,7 +341,7 @@ async def lastImages(ctx, channel:discord.abc.GuildChannel):
 		await msg.edit(content=f"Could not find any images in the most recent {msg_num*max} messages.")
 		return
 	await msg.edit(content="Images found!")
-	emb = discord.Embed(title=f"Last Sent Images in #{channel}", description="If an image is not shown here, it is a video.", color=colors["blurple"])
+	emb = discord.Embed(title=f"Last Sent Images in #{channel}", color=colors["blurple"])
 	emb.set_image(url=msg_list[0][1])
 	emb.set_footer(text=f"1/{len(msg_list)}")
 
