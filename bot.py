@@ -24,14 +24,14 @@ author = ""
 font = ImageFont.truetype("comicsansms3.ttf", 48)
 letters = "abcdefghijklmnopqrstuvwxyz"
 numbers = "0123456789"
-offset = 5 # 5 = CDT, 6 = CST
+offset = 6 # 5 = CDT, 6 = CST
 current = datetime.now(timezone(timedelta(hours=-offset)))
 
 colors = {"blurple" : 0x5865f2, "poke" : 0xfe9ac9}
 symbols = {"hedgehog" : "\U0001f994", "present" : "\ufe0f"}
 logs = {}
 mods =	[715327315974029333, 268849207039754241]
-pokemon = [[], [], [], ["Mesprit", "Azelf", "Dialga", "Palkia", "Heatran", "Regigigas", "Giratina", "Darkrai", "Shaymin"], ["Whimsicott", "Cobalion", "Terrakion", "Tornadus", "Thundurus", "Reshiram", "Landorus", "Kyurem"], ["Xerneas", "Diancie"], ["Type: Null", "Tapu Lele", "Cosmog", "Cosmoem", "Solgaleo", "Buzzwole", "Pheromosa", "Magearna", "Marshadow", "Poipole", "Stakataka", "Blacephalon"], ["Rillaboom", "Orbeetle", "Dubwool", "Drednaw", "Flapple", "Sandaconda", "Cramorant", "Grapploct", "Grimmsnarl", "Obstagoon", "Perrserker", "Cursola", "Sirfetch'd", "Mr. Rime", "Runerigus", "Arctozolt", "Dragapult", "Zacian", "Zamazenta", "Kubfu", "Urshifu", "Zarude", "Regieleki", "Regidrago", "Glastrier", "Spectrier", "Calyrex"]]
+pokemon = [[], [], [], ["Dialga", "Palkia", "Heatran", "Regigigas", "Giratina", "Darkrai", "Shaymin"], ["Whimsicott", "Cobalion", "Terrakion", "Tornadus", "Thundurus", "Reshiram", "Landorus", "Kyurem"], ["Xerneas", "Diancie"], ["Type: Null", "Tapu Lele", "Cosmog", "Cosmoem", "Solgaleo", "Buzzwole", "Pheromosa", "Magearna", "Marshadow", "Poipole", "Stakataka", "Blacephalon"], ["Rillaboom", "Orbeetle", "Dubwool", "Drednaw", "Flapple", "Sandaconda", "Cramorant", "Grapploct", "Grimmsnarl", "Obstagoon", "Perrserker", "Cursola", "Sirfetch'd", "Mr. Rime", "Runerigus", "Arctozolt", "Dragapult", "Zacian", "Zamazenta", "Kubfu", "Urshifu", "Zarude", "Regieleki", "Regidrago", "Glastrier", "Spectrier", "Calyrex"]]
 shapes = [["\u2764" + symbols["present"], "\U0001f499", "\U0001f49a"], ["\U0001f534", "\U0001f535", "\U0001f7e2"], ["\U0001f7e5", "\U0001f7e6", "\U0001f7e9"]] # red blue green heart circle square
 shiny = [["Gastly", 715327315974029333], ["Beldum", 409205134028046346], ["Riolu", 345659592736243714], ["Sneasel", 441046114792243215], ["Dreepy", 542542697488187403], ["Cubchoo", 268849207039754241], ["Porygon", 263440201118908418], ["Snorlax", 821456684462637127], ["Ralts", 776134910548639828]]
 shiny.sort()
@@ -58,7 +58,7 @@ async def on_connect():
 async def on_ready():
 	global poketwo
 	print("Hello World!")
-	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="the V-Shojo SMP | ;h"))
+	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="VShojo | ;h"))
 	poketwo = await bot.fetch_user(716390085896962058)
 	poketwo = poketwo.avatar_url
 
