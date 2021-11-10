@@ -74,8 +74,10 @@ async def on_ready():
 #		await msg.reply("i logged onto github and updated comisans' code just to say what the fuck")
 
 	channel = discord.utils.get(bot.get_all_channels(), name="local-retards")
-	days = str((datetime(2022, 1, 9, offset) - datetime.utcnow()).days + 1)
-	await channel.send(embed=discord.Embed(title=f"{days} days remain until Attack on Titan Season 4 Part 2 comes out.", color=0xff0000))
+	emb = discord.Embed(title="Countdowns", color=0xff0000)
+	emb.add_field(name="Stone Ocean", value=str((datetime(2022, 12, 1, offset) - datetime.utcnow()).days + 1))
+	emb.add_field(name="AOT Season 4 Part 2", value=str((datetime(2022, 1, 9, offset) - datetime.utcnow()).days + 1))
+	await channel.send(embed=emb)
 
 guild_ids = [645111346274500614, 409325808864460800]
 
@@ -94,7 +96,10 @@ async def on_message(msg):
 	if newLogs:
 		if len(temp) > 9:
 			temp.pop(0)
-		temp.append(f"__{msg.author}__\n{msg.clean_content if msg.clean_content != '' else '`No message content`'}\n{msg.attachments if msg.attachments != [] else '`No attachments`'}")
+		attach = ""
+		for i in msg.attachments:
+			attach += f"{i.url}\n"
+		temp.append(f"__{msg.author}__\n{msg.clean_content if msg.clean_content != '' else '`No message content`'}\n{attach if attach != '' else '`No attachments`'}")
 	else:
 		logs[f"{msg.channel.id}"] = []
 
@@ -168,7 +173,7 @@ async def sendComic(ctx, text:str, color:str="#f0f"):
 async def poll(ctx, title:str, choice1:str, choice2:str):
 	numbers = [symbols["hedgehog"], "\U0001f7e9", "\U0001f7ea"]
 	emb = discord.Embed(title=f"{ctx.author.name}'s Poll", color=ctx.author.color)
-	emb.set_thumbnail(url=str(ctx.author.avatar_url))
+	emb.set_author(url=str(ctx.author.avatar_url))
 	emb.add_field(name=title, value=f"{numbers[1]} {choice1}\n{numbers[2]} {choice2}")
 	msg = await ctx.send(embed=emb)
 	for i in numbers:
