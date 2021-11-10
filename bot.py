@@ -77,9 +77,9 @@ async def on_ready():
 	emb = discord.Embed(title="Countdowns", color=0xff0000)
 	dates = [datetime(2021, 12, 1, offset), datetime(2022, 1, 9, offset)]
 	for i in range(len(dates)):
-		dates[i] -= datetime.utcnow()
-	emb.add_field(name="Stone Ocean", value=f"{dates[0].days} days, {dates[0].hours} hours")
-	emb.add_field(name="AOT Season 4 Part 2", value=f"{dates[1].days} days, {dates[1].hours} hours")
+		dates[i] = (dates[i] - datetime.utcnow()).days
+	emb.add_field(name="Stone Ocean", value=f"{dates[0]} days")
+	emb.add_field(name="AOT Season 4 Part 2", value=f"{dates[1]} days")
 	await channel.send(embed=emb)
 
 guild_ids = [645111346274500614, 409325808864460800]
@@ -176,7 +176,7 @@ async def sendComic(ctx, text:str, color:str="#f0f"):
 async def poll(ctx, title:str, choice1:str, choice2:str):
 	numbers = [symbols["hedgehog"], "\U0001f7e9", "\U0001f7ea"]
 	emb = discord.Embed(color=ctx.author.color)
-	emb.set_author(name=f"{ctx.author.name}'s Poll", url=str(ctx.author.avatar_url))
+	emb.set_author(name=f"{ctx.author.name}'s Poll", icon_url=str(ctx.author.avatar_url))
 	emb.add_field(name=title, value=f"{numbers[1]} {choice1}\n{numbers[2]} {choice2}")
 	msg = await ctx.send(embed=emb)
 	for i in numbers:
