@@ -75,8 +75,11 @@ async def on_ready():
 
 	channel = discord.utils.get(bot.get_all_channels(), name="local-retards")
 	emb = discord.Embed(title="Countdowns", color=0xff0000)
-	emb.add_field(name="Stone Ocean", value=str((datetime(2022, 12, 1, offset) - datetime.utcnow()).days + 1))
-	emb.add_field(name="AOT Season 4 Part 2", value=str((datetime(2022, 1, 9, offset) - datetime.utcnow()).days + 1))
+	dates = [datetime(2021, 12, 1, offset), datetime(2022, 1, 9, offset)]
+	for i in range(len(dates)):
+		dates[i] -= datetime.utcnow()
+	emb.add_field(name="Stone Ocean", value=f"{dates[0].days} days, {dates[0].hours} hours")
+	emb.add_field(name="AOT Season 4 Part 2", value=f"{dates[1].days} days, {dates[1].hours} hours")
 	await channel.send(embed=emb)
 
 guild_ids = [645111346274500614, 409325808864460800]
@@ -172,8 +175,8 @@ async def sendComic(ctx, text:str, color:str="#f0f"):
 @slash.slash(description="Make a poll.", guild_ids=guild_ids, options=[create_option(name="title", description="The title of the poll.", option_type=3, required=True), create_option(name="choice1", description="The poll's first choice.", option_type=3, required=True), create_option(name="choice2", description="The poll's second choice.", option_type=3, required=True)])
 async def poll(ctx, title:str, choice1:str, choice2:str):
 	numbers = [symbols["hedgehog"], "\U0001f7e9", "\U0001f7ea"]
-	emb = discord.Embed(title=f"{ctx.author.name}'s Poll", color=ctx.author.color)
-	emb.set_author(url=str(ctx.author.avatar_url))
+	emb = discord.Embed(color=ctx.author.color)
+	emb.set_author(name=f"{ctx.author.name}'s Poll", url=str(ctx.author.avatar_url))
 	emb.add_field(name=title, value=f"{numbers[1]} {choice1}\n{numbers[2]} {choice2}")
 	msg = await ctx.send(embed=emb)
 	for i in numbers:
