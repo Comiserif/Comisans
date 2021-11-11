@@ -75,7 +75,7 @@ async def on_ready():
 
 	channel = discord.utils.get(bot.get_all_channels(), name="local-retards")
 	emb = discord.Embed(title="Countdowns", color=0xff0000)
-	dates = [datetime(2021, 12, 1, offset), datetime(2022, 1, 9, offset)]
+	dates = [datetime(2021, 12, 1), datetime(2022, 1, 9)]
 	for i in range(len(dates)):
 		dates[i] = (dates[i] - datetime.utcnow()).days
 	emb.add_field(name="Stone Ocean", value=f"{dates[0]} days")
@@ -335,7 +335,7 @@ async def lastImages(ctx, channel:discord.abc.GuildChannel):
 			if i.attachments != []:
 				i.attachments.reverse()
 				for j in i.attachments:
-					if "image" in j.content_type and att_ct < 10:
+					if att_ct < 10:
 						att_ct += 1
 						msg_list.append([i.jump_url, j.url, att_ct])
 		if att_ct < 10:
@@ -349,7 +349,7 @@ async def lastImages(ctx, channel:discord.abc.GuildChannel):
 		await msg.edit(content=f"Could not find any images in the most recent {msg_num*max} messages.")
 		return
 	await msg.edit(content="Images found!")
-	emb = discord.Embed(title=f"Last Sent Images in #{channel}", color=colors["blurple"])
+	emb = discord.Embed(title=f"Last Sent Images in #{channel}", description="If nothing is showing here, it is probably a video.", color=colors["blurple"])
 	emb.set_image(url=msg_list[0][1])
 	emb.set_footer(text=f"1/{len(msg_list)}")
 
