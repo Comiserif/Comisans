@@ -58,7 +58,7 @@ async def on_connect():
 async def on_ready():
 	global poketwo
 	print("Hello World!")
-	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="VShojo | ;h"))
+	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="twitch.tv/apricot"))
 	poketwo = await bot.fetch_user(716390085896962058)
 	poketwo = poketwo.avatar_url
 
@@ -69,18 +69,19 @@ async def on_ready():
 
 	channel = discord.utils.get(bot.get_all_channels(), name="local-retards")
 #	msg = await channel.send(content="i logged onto github ", file=discord.File("a.png"))
-#	for i in [909179123048517632, 909179136172511364]:
+#	for i in []:
 #		msg = await channel.fetch_message(i)
 #		await msg.delete()
 
-	channel = discord.utils.get(bot.get_all_channels(), name="local-retards")
+	channel = discord.utils.get(bot.get_all_channels(), name="local-announcements")
+	msg = await channel.fetch_message(909198824529080350)
 	emb = discord.Embed(title="Countdowns", color=0xff0000)
 	dates = [datetime(2021, 12, 1), datetime(2022, 1, 9)]
 	for i in range(len(dates)):
 		dates[i] = (dates[i] - datetime.utcnow()).days
 	emb.add_field(name="Stone Ocean", value=f"{dates[0]} days")
 	emb.add_field(name="AOT Season 4 Part 2", value=f"{dates[1]} days")
-	await channel.send(embed=emb)
+	await msg.edit(embed=emb)
 
 guild_ids = [645111346274500614, 409325808864460800]
 
@@ -384,6 +385,7 @@ async def react(ctx: MenuContext):
 		return ctx.author_id == m.author.id
 	msg = await bot.wait_for('message', check=check)
 	text = msg.content
+	await msg.delete()
 
 	length = len(text)
 	init = []
@@ -420,16 +422,5 @@ async def react(ctx: MenuContext):
 	await ctx.target_message.channel.send(embed=emb, components=[act_row])
 
 
-
-@bot.command(name="h")
-async def listCommands(ctx):
-	await ctx.trigger_typing()
-	emb = discord.Embed(title="Commands", color=colors["blurple"])
-	pre = bot.command_prefix
-	commands = [["r", "Adds reactions to the message replied to."], ["h", "Displays this message."]]
-	for i in commands:
-		emb.add_field(name=pre + i[0], value=f"{i[1]}\n")
-	emb.set_footer(text="All commands are case insensitive.")
-	await ctx.send(embed=emb)
 
 bot.run(environ["token"])
