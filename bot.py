@@ -9,8 +9,8 @@ from discord_slash import SlashCommand
 from discord_slash.utils.manage_commands import create_option
 from discord_slash.utils.manage_components import create_button, create_actionrow
 #wait_for_component, create_select, create_select_option
-from discord_slash.model import ButtonStyle
-from discord_slash.context import ComponentContext
+from discord_slash.model import ButtonStyle, ContextMenuType
+from discord_slash.context import ComponentContext, MenuContext
 
 intents = discord.Intents.default()
 intents.members = True
@@ -69,9 +69,9 @@ async def on_ready():
 
 	channel = discord.utils.get(bot.get_all_channels(), name="local-retards")
 #	msg = await channel.send(content="i logged onto github ", file=discord.File("a.png"))
-#	for i in [904582203734888520]:
+#	for i in [909179123048517632, 909179136172511364]:
 #		msg = await channel.fetch_message(i)
-#		await msg.reply("i logged onto github and updated comisans' code just to say what the fuck")
+#		await msg.delete()
 
 	channel = discord.utils.get(bot.get_all_channels(), name="local-retards")
 	emb = discord.Embed(title="Countdowns", color=0xff0000)
@@ -129,10 +129,8 @@ async def on_message(msg):
 	if brazil:
 		await msg.reply("https://media.discordapp.net/attachments/690665832350613545/831319542151118858/image0.gif")
 
-
-
 @slash.slash(description="Send a message in Comic Sans.", guild_ids=guild_ids, options=[create_option(name="text", description="The text you want to send.", option_type=3, required=True), create_option(name="color", description="The color of the text.", option_type=3, required=False)])
-async def sendComic(ctx, text:str, color:str="#f0f"):
+async def sendcomic(ctx, text:str, color:str="#f0f"):
 	count = 0
 	lineLen = 36
 	msgList = []
@@ -379,9 +377,13 @@ async def lastImages(ctx, channel:discord.abc.GuildChannel):
 
 
 
-@slash.slash(description="React with letters and numbers to a message.", guild_ids=guild_ids, options=[create_option(name="message_id", description="The ID of the message you want to react to.", option_type=3, required=True), create_option(name="text", description="The text to react to the message with", option_type=3, required=True)])
-async def react(ctx, message_id:str, text:str):
-	await ctx.defer()
+@slash.context_menu(target=ContextMenuType.MESSAGE, name="React With Letters", guild_ids=guild_ids)
+async def react(ctx: MenuContext):
+	await ctx.send("Enter the text to react to the message with in chat.", hidden=True)
+	def check(m):
+		return ctx.author_id == m.author.id
+	msg = await bot.wait_for('message', check=check)
+	text = msg.content
 
 	length = len(text)
 	init = []
@@ -403,16 +405,6 @@ async def react(ctx, message_id:str, text:str):
 	if length > len(text):
 		description += "— This command only supports letters and numbers.\n"
 
-	in_server = False
-	for i in ctx.guild.text_channels:
-		try:
-			msg = await i.fetch_message(int(message_id))
-			in_server = True
-		except:
-			continue
-	if not in_server:
-		await ctx.send("message_id needs to be an ID of a message in this server.", hidden=True)
-		return
 	emojis = []
 	for i in text:
 		for j in range(len(letters)):
@@ -422,67 +414,10 @@ async def react(ctx, message_id:str, text:str):
 			if numbers[j] == i:
 				emojis.append(chr(48+j) + symbols["present"] + "\u20e3")
 	for i in emojis:
-		await msg.add_reaction(i)
-	act_row = create_actionrow(create_button(style=ButtonStyle.URL, label="Go to Message", url=msg.jump_url))
+		await ctx.target_message.add_reaction(i)
+	act_row = create_actionrow(create_button(style=ButtonStyle.URL, label="Go to Message", url=ctx.target_message.jump_url))
 	emb = discord.Embed(title="Reactions added!", description=description, color=colors["blurple"])
-	await wait(1)
-	await ctx.send(embed=emb, components=[act_row])
-
-
-
-@bot.command()
-async def r(ctx, *para):
-	if para == ():
-		await ctx.reply("You need to input something.", mention_author=False)
-		return
-
-	text = "".join(para)
-	length = len(text)
-	init = []
-	description = ""
-	for i in text:
-		init.append(i)
-	text = "".join(dict.fromkeys(init)).lower()
-	if length > len(text):
-		description += "— A message cannot have duplicate reactions.\n"
-	if len(text) > 20:
-		description += "— Your message was cut off because a message can only have 20 reactions.\n"
-		text = text[:20]
-	banned = []
-	for i in text:
-		if not i.isalnum():
-			banned.append(i)
-	for i in banned:
-		text = text.replace(i, "")
-	if length > len(text):
-		description += "— This command only supports letters and numbers.\n"
-	
-	if ctx.message.reference != None:
-		in_server = False
-		for i in ctx.guild.text_channels:
-			try:
-				msg = await i.fetch_message(ctx.message.reference.message_id)
-				in_server = True
-			except:
-				continue
-		if not in_server:
-			await ctx.reply("[message_id] needs to be an ID of a message in this server.")
-			return
-		emojis = []
-		for i in text:
-			for j in range(len(letters)):
-				if letters[j] == i:
-					emojis.append(chr(127462+j))
-			for j in range(len(numbers)):
-				if numbers[j] == i:
-					emojis.append(chr(48+j) + symbols["present"] + "\u20e3")
-		for i in emojis:
-			await msg.add_reaction(i)
-		act_row = create_actionrow(create_button(style=ButtonStyle.URL, label="Go to Message", url=msg.jump_url))
-		emb = discord.Embed(title="Reactions added!", description=description, color=colors["blurple"])
-		await ctx.reply(embed=emb, components=[act_row])
-	else:
-		await ctx.reply("You need to reply to a message.")
+	await ctx.target_message.channel.send(embed=emb, components=[act_row])
 
 
 
