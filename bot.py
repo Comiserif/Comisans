@@ -58,7 +58,7 @@ async def on_connect():
 async def on_ready():
 	global poketwo
 	print("Hello World!")
-	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="twitch.tv/apricot"))
+	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="VShojo | ;h"))
 	poketwo = await bot.fetch_user(716390085896962058)
 	poketwo = poketwo.avatar_url
 
@@ -377,8 +377,7 @@ async def lastImages(ctx, channel:discord.abc.GuildChannel):
 		await comctx.edit_origin(embed=emb, components=[init_buttons()])
 
 
-
-@slash.context_menu(target=ContextMenuType.MESSAGE, name="React With Letters", guild_ids=guild_ids)
+eventually = '''@slash.context_menu(target=ContextMenuType.MESSAGE, name="React With Letters", guild_ids=guild_ids)
 async def react(ctx: MenuContext):
 	await ctx.send("Enter the text to react to the message with in chat.", hidden=True)
 	def check(m):
@@ -419,8 +418,119 @@ async def react(ctx: MenuContext):
 		await ctx.target_message.add_reaction(i)
 	act_row = create_actionrow(create_button(style=ButtonStyle.URL, label="Go to Message", url=ctx.target_message.jump_url))
 	emb = discord.Embed(title="Reactions added!", description=description, color=colors["blurple"])
-	await ctx.target_message.channel.send(embed=emb, components=[act_row])
+	await ctx.target_message.channel.send(embed=emb, components=[act_row])'''
+
+@slash.slash(description="React with letters and numbers to a message.", guild_ids=guild_ids, options=[create_option(name="message_id", description="The ID of the message you want to react to.", option_type=3, required=True), create_option(name="text", description="The text to react to the message with", option_type=3, required=True)])
+async def react(ctx, message_id:str, text:str):
+	await ctx.defer()
+
+	length = len(text)
+	init = []
+	description = ""
+	for i in text:
+		init.append(i)
+	text = "".join(dict.fromkeys(init)).lower()
+	if length > len(text):
+		description += "— A message cannot have duplicate reactions.\n"
+	if len(text) > 20:
+		description += "— Your message was cut off because a message can only have 20 reactions.\n"
+		text = text[:20]
+	banned = []
+	for i in text:
+		if not i.isalnum():
+			banned.append(i)
+	for i in banned:
+		text = text.replace(i, "")
+	if length > len(text):
+		description += "— This command only supports letters and numbers.\n"
+
+	in_server = False
+	for i in ctx.guild.text_channels:
+		try:
+			msg = await i.fetch_message(int(message_id))
+			in_server = True
+		except:
+			continue
+	if not in_server:
+		await ctx.send("message_id needs to be an ID of a message in this server.", hidden=True)
+		return
+	emojis = []
+	for i in text:
+		for j in range(len(letters)):
+			if letters[j] == i:
+				emojis.append(chr(127462+j))
+		for j in range(len(numbers)):
+			if numbers[j] == i:
+				emojis.append(chr(48+j) + symbols["present"] + "\u20e3")
+	for i in emojis:
+		await msg.add_reaction(i)
+	act_row = create_actionrow(create_button(style=ButtonStyle.URL, label="Go to Message", url=msg.jump_url))
+	emb = discord.Embed(title="Reactions added!", description=description, color=colors["blurple"])
+	await wait(1)
+	await ctx.send(embed=emb, components=[act_row])
+
+@bot.command()
+async def r(ctx, *para):
+	if para == ():
+		await ctx.reply("You need to input something.", mention_author=False)
+		return
+
+	text = "".join(para)
+	length = len(text)
+	init = []
+	description = ""
+	for i in text:
+		init.append(i)
+	text = "".join(dict.fromkeys(init)).lower()
+	if length > len(text):
+		description += "— A message cannot have duplicate reactions.\n"
+	if len(text) > 20:
+		description += "— Your message was cut off because a message can only have 20 reactions.\n"
+		text = text[:20]
+	banned = []
+	for i in text:
+		if not i.isalnum():
+			banned.append(i)
+	for i in banned:
+		text = text.replace(i, "")
+	if length > len(text):
+		description += "— This command only supports letters and numbers.\n"
+	
+	if ctx.message.reference != None:
+		for i in ctx.guild.text_channels:
+			try:
+				msg = await i.fetch_message(ctx.message.reference.message_id)
+			except:
+				continue
+		emojis = []
+		for i in text:
+			for j in range(len(letters)):
+				if letters[j] == i:
+					emojis.append(chr(127462+j))
+			for j in range(len(numbers)):
+				if numbers[j] == i:
+					emojis.append(chr(48+j) + symbols["present"] + "\u20e3")
+		for i in emojis:
+			await msg.add_reaction(i)
+		act_row = create_actionrow(create_button(style=ButtonStyle.URL, label="Go to Message", url=msg.jump_url))
+		emb = discord.Embed(title="Reactions added!", description=description, color=colors["blurple"])
+		await ctx.reply(embed=emb, components=[act_row])
+	else:
+		await ctx.reply("You need to reply to a message.")
 
 
 
-bot.run(environ["token"])
+@bot.command(name="h")
+async def listCommands(ctx):
+	await ctx.trigger_typing()
+	emb = discord.Embed(title="Commands", color=colors["blurple"])
+	pre = bot.command_prefix
+	commands = [["r", "Adds reactions to the message replied to."], ["h", "Displays this message."]]
+	for i in commands:
+		emb.add_field(name=pre + i[0], value=f"{i[1]}\n")
+	emb.set_footer(text="All commands are case insensitive.")
+	await ctx.send(embed=emb)
+
+
+
+bot.run("NzQwNzIzMzMzMTI0OTgwNzc2.XytKXA.OLa7DXo1N-9fiqBUu-hGKeG6rik")
