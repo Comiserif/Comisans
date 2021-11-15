@@ -81,6 +81,7 @@ async def on_ready():
 		dates[i] = (dates[i] - datetime.utcnow()).days
 	emb.add_field(name="Stone Ocean", value=f"{dates[0]} days")
 	emb.add_field(name="AOT Season 4 Part 2", value=f"{dates[1]} days")
+	emb.set_footer(text="https://youtu.be/8t8znoiYEeo")
 	await msg.edit(embed=emb)
 
 guild_ids = [645111346274500614, 409325808864460800]
