@@ -68,7 +68,7 @@ async def on_ready():
 #	check.start()
 
 	channel = discord.utils.get(bot.get_all_channels(), name="local-retards")
-#	msg = await channel.send(content="i logged onto github ", file=discord.File("a.png"))
+#	msg = await channel.send(content="", file=None)
 #	for i in []:
 #		msg = await channel.fetch_message(i)
 #		await msg.delete()
@@ -81,7 +81,6 @@ async def on_ready():
 		dates[i] = (dates[i] - datetime.utcnow()).days
 	emb.add_field(name="Stone Ocean", value=f"{dates[0]} days")
 	emb.add_field(name="AOT Season 4 Part 2", value=f"{dates[1]} days")
-	emb.set_footer(text="https://youtu.be/8t8znoiYEeo")
 	await msg.edit(embed=emb)
 
 guild_ids = [645111346274500614, 409325808864460800]
@@ -534,4 +533,4 @@ async def listCommands(ctx):
 
 
 
-bot.run("NzQwNzIzMzMzMTI0OTgwNzc2.XytKXA.OLa7DXo1N-9fiqBUu-hGKeG6rik")
+bot.run(environ["token"])
