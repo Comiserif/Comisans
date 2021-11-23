@@ -1,6 +1,7 @@
 from os import environ
 from datetime import datetime, timezone, timedelta
 from random import randrange, choice, sample
+from math import ceil
 from PIL import Image, ImageFont, ImageDraw, ImageColor
 from asyncio import sleep
 import discord
@@ -25,7 +26,7 @@ font = ImageFont.truetype("comicsansms3.ttf", 48)
 letters = "abcdefghijklmnopqrstuvwxyz"
 numbers = "0123456789"
 offset = 6 # 5 = CDT, 6 = CST
-current = datetime.now(timezone(timedelta(hours=-offset)))
+centraltz = timezone(timedelta(hours=-offset))
 
 colors = {"blurple" : 0x5865f2, "poke" : 0xfe9ac9}
 symbols = {"hedgehog" : "\U0001f994", "present" : "\ufe0f"}
@@ -44,13 +45,13 @@ async def wait(x):
 
 @tasks.loop(seconds=5)
 async def check():
-	if current.day == 6:
+	if datetime.now(centraltz).day == 6:
 		channel = discord.utils.get(bot.get_all_channels(), name="question-of-the-day")
 		await channel.send(content="Come up with a different name for American (referring to those that live in the United States).", file=None)
 
 @bot.event
 async def on_connect():
-	print(current)
+	print(datetime.now(centraltz))
 
 
 
@@ -74,13 +75,14 @@ async def on_ready():
 #		await msg.delete()
 
 	channel = discord.utils.get(bot.get_all_channels(), name="local-announcements")
-	msg = await channel.fetch_message(909198824529080350)
+	msg = await channel.fetch_message(912790035848376330)
 	emb = discord.Embed(title="Countdowns", color=0xff0000)
-	dates = [datetime(2021, 12, 1), datetime(2022, 1, 9)]
+	dates = [datetime(2021, 12, 1, tzinfo=centraltz), datetime(2022, 1, 9, tzinfo=centraltz)]
 	for i in range(len(dates)):
-		dates[i] = (dates[i] - datetime.utcnow()).days
-	emb.add_field(name="Stone Ocean", value=f"{dates[0]} days")
-	emb.add_field(name="AOT Season 4 Part 2", value=f"{dates[1]} days")
+		delta = dates[i] - datetime.now(centraltz)
+		dates[i] = [delta.days, ceil(delta.seconds/3600)]
+	emb.add_field(name="Stone Ocean", value=f"{dates[0][0]} days, {dates[0][1]} hours")
+	emb.add_field(name="AOT Season 4 Part 2", value=f"{dates[1][0]} days, {dates[1][1]} hours")
 	await msg.edit(embed=emb)
 
 guild_ids = [645111346274500614, 409325808864460800]
