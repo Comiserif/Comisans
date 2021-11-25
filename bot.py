@@ -83,6 +83,9 @@ async def on_ready():
 		dates[i] = [delta.days, ceil(delta.seconds/3600)]
 	emb.add_field(name="Stone Ocean", value=f"{dates[0][0]} days, {dates[0][1]} hours")
 	emb.add_field(name="AOT Season 4 Part 2", value=f"{dates[1][0]} days, {dates[1][1]} hours")
+	emb.add_field(name="Christmas", value=f"{(datetime(2021, 12, 25, tzinfo=centraltz) - datetime.now(centraltz)) /  timedelta(microseconds=1)} microseconds", inline=False)
+	emb.set_footer(text=f"Updated {datetime.now(centraltz)}")
+
 	await msg.edit(embed=emb)
 
 guild_ids = [645111346274500614, 409325808864460800]
@@ -287,11 +290,36 @@ async def shapeStatus(ctx):
 
 
 
-@slash.slash(description="Retrieve the last 10 messages of a channel.", guild_ids=guild_ids, options=[create_option(name="channel", description="The channel to get the messages from.", option_type=7, required=True)])
-async def snipe(ctx, channel:discord.abc.GuildChannel):
+@slash.subcommand(base="snipe", name="channel", description="Retrieve the last 10 messages of a channel.", guild_ids=guild_ids, options=[create_option(name="channel", description="The channel to get the messages from.", option_type=7, required=True)])
+async def snipe_channel(ctx, channel:discord.abc.GuildChannel):
 	if not isinstance(channel, discord.TextChannel):
 		print(logs)
 		await ctx.send(f"{channel} is not a text channel.", hidden=True)
+		return
+
+	try:
+		temp = logs[f"{channel.id}"]
+		logExists = True
+	except:
+		logExists = False
+
+	if logExists:
+		description = ""
+		for i in temp:
+			description += f"{i}\n\n"
+	else:
+		await ctx.send(f"I do not have messages logged for {channel}.", hidden=True)
+		return
+
+	await ctx.send(embed=discord.Embed(title=f"Last Sent Messages in #{channel}", description=description, color=colors["blurple"]))
+
+
+
+@slash.subcommand(base="snipe", name="channel_id", description="Retrieve the last 10 messages of a channel.", guild_ids=guild_ids, options=[create_option(name="channel_id", description="The ID of the channel to get the messages from.", option_type=3, required=True)])
+async def snipe_id(ctx, channel_id:str):
+	channel = bot.get_channel(int(channel_id))
+	if channel == None or channel.guild.id != ctx.guild_id:
+		await ctx.send("channel_id needs to be the ID of a channel in this server.")
 		return
 
 	try:
