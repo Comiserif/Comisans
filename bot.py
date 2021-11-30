@@ -77,13 +77,13 @@ async def on_ready():
 	channel = discord.utils.get(bot.get_all_channels(), name="local-announcements")
 	msg = await channel.fetch_message(912790035848376330)
 	emb = discord.Embed(title="Countdowns", color=0xff0000)
-	dates = [datetime(2021, 12, 1, tzinfo=centraltz), datetime(2022, 1, 9, tzinfo=centraltz)]
+	dates = [datetime(2021, 12, 1, tzinfo=centraltz), datetime(2022, 1, 9, tzinfo=centraltz), datetime(2021, 12, 17, 14, 15, tzinfo=centraltz)]
 	for i in range(len(dates)):
 		delta = dates[i] - datetime.now(centraltz)
 		dates[i] = [delta.days, ceil(delta.seconds/3600)]
 	emb.add_field(name="Stone Ocean", value=f"{dates[0][0]} days, {dates[0][1]} hours")
 	emb.add_field(name="AOT Season 4 Part 2", value=f"{dates[1][0]} days, {dates[1][1]} hours")
-	emb.add_field(name="Christmas", value=f"{(datetime(2021, 12, 25, tzinfo=centraltz) - datetime.now(centraltz)) /  timedelta(microseconds=1)} microseconds", inline=False)
+	emb.add_field(name="Winter Break", value=f"{dates[2][0]} days, {dates[2][1]} hours")
 	emb.set_footer(text=f"Updated {datetime.now(centraltz)}")
 
 	await msg.edit(embed=emb)
