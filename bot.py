@@ -43,11 +43,21 @@ def randomColor():
 async def wait(x):
 	await sleep(x)
 
-@tasks.loop(seconds=5)
+@tasks.loop(hours=1)
 async def check():
-	if datetime.now(centraltz).day == 6:
-		channel = discord.utils.get(bot.get_all_channels(), name="question-of-the-day")
-		await channel.send(content="Come up with a different name for American (referring to those that live in the United States).", file=None)
+	channel = discord.utils.get(bot.get_all_channels(), name="local-announcements")
+	msg = await channel.fetch_message(912790035848376330)
+	emb = discord.Embed(title="Countdowns", color=0xff0000)
+	dates = [datetime(2022, 1, 9, tzinfo=centraltz), datetime(2021, 12, 17, 14, 15, tzinfo=centraltz)]
+	for i in range(len(dates)):
+		delta = dates[i] - datetime.now(centraltz)
+		dates[i] = [delta.days, ceil(delta.seconds/3600)]
+	titles = ["AOT Season 4 Part 2", "Winter Break"]
+	for i in range(len(titles)):
+		emb.add_field(name=titles[i], value=f"{dates[i][0]} days, {dates[i][1]} hours")
+	emb.set_footer(text=f"Updated {datetime.now(centraltz)}")
+
+	await msg.edit(embed=emb)
 
 @bot.event
 async def on_connect():
@@ -66,27 +76,13 @@ async def on_ready():
 #	dm = await discord.utils.get(bot.get_all_members(), name="Comiserif").create_dm()
 #	await dm.send("what")
 
-#	check.start()
+	check.start()
 
 	channel = discord.utils.get(bot.get_all_channels(), name="local-retards")
 #	msg = await channel.send(content="", file=None)
 #	for i in []:
 #		msg = await channel.fetch_message(i)
 #		await msg.delete()
-
-	channel = discord.utils.get(bot.get_all_channels(), name="local-announcements")
-	msg = await channel.fetch_message(912790035848376330)
-	emb = discord.Embed(title="Countdowns", color=0xff0000)
-	dates = [datetime(2021, 12, 1, tzinfo=centraltz), datetime(2022, 1, 9, tzinfo=centraltz), datetime(2021, 12, 17, 14, 15, tzinfo=centraltz)]
-	for i in range(len(dates)):
-		delta = dates[i] - datetime.now(centraltz)
-		dates[i] = [delta.days, ceil(delta.seconds/3600)]
-	emb.add_field(name="Stone Ocean", value=f"{dates[0][0]} days, {dates[0][1]} hours")
-	emb.add_field(name="AOT Season 4 Part 2", value=f"{dates[1][0]} days, {dates[1][1]} hours")
-	emb.add_field(name="Winter Break", value=f"{dates[2][0]} days, {dates[2][1]} hours")
-	emb.set_footer(text=f"Updated {datetime.now(centraltz)}")
-
-	await msg.edit(embed=emb)
 
 guild_ids = [645111346274500614, 409325808864460800]
 
@@ -108,7 +104,7 @@ async def on_message(msg):
 		attach = ""
 		for i in msg.attachments:
 			attach += f"{i.url}\n"
-		temp.append(f"__{msg.author}__\n{msg.clean_content if msg.clean_content != '' else '`No message content`'}\n{attach if attach != '' else '`No attachments`'}")
+		temp.append(f"__{msg.author}__\n{msg.clean_content if msg.clean_content != '' else ''}\n{attach if attach != '' else ''}")
 	else:
 		logs[f"{msg.channel.id}"] = []
 
