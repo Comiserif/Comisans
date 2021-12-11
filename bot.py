@@ -32,7 +32,7 @@ colors = {"blurple" : 0x5865f2, "poke" : 0xfe9ac9}
 symbols = {"hedgehog" : "\U0001f994", "present" : "\ufe0f"}
 logs = {}
 mods =	[715327315974029333, 268849207039754241]
-pokemon = [[], [], [], ["Dialga", "Palkia", "Heatran", "Regigigas", "Giratina", "Darkrai", "Shaymin"], ["Whimsicott", "Cobalion", "Terrakion", "Tornadus", "Thundurus", "Reshiram", "Landorus", "Kyurem"], ["Xerneas", "Diancie"], ["Type: Null", "Tapu Lele", "Cosmog", "Cosmoem", "Solgaleo", "Buzzwole", "Pheromosa", "Magearna", "Marshadow", "Poipole", "Stakataka", "Blacephalon"], ["Rillaboom", "Orbeetle", "Dubwool", "Drednaw", "Flapple", "Cramorant", "Grapploct", "Grimmsnarl", "Obstagoon", "Perrserker", "Cursola", "Sirfetch'd", "Mr. Rime", "Runerigus", "Zacian", "Zamazenta", "Kubfu", "Urshifu", "Zarude", "Regieleki", "Regidrago", "Glastrier", "Spectrier", "Calyrex"]]
+pokemon = [[], [], [], ["Palkia", "Heatran", "Regigigas", "Giratina", "Darkrai", "Shaymin"], ["Whimsicott", "Cobalion", "Terrakion", "Tornadus", "Thundurus", "Reshiram", "Landorus", "Kyurem"], ["Xerneas", "Diancie"], ["Type: Null", "Tapu Lele", "Cosmog", "Cosmoem", "Solgaleo", "Buzzwole", "Pheromosa", "Magearna", "Marshadow", "Poipole", "Stakataka", "Blacephalon"], ["Rillaboom", "Orbeetle", "Dubwool", "Drednaw", "Flapple", "Cramorant", "Grapploct", "Grimmsnarl", "Obstagoon", "Perrserker", "Cursola", "Sirfetch'd", "Mr. Rime", "Runerigus", "Zacian", "Zamazenta", "Kubfu", "Urshifu", "Zarude", "Regieleki", "Regidrago", "Glastrier", "Spectrier", "Calyrex"]]
 shapes = [["\u2764" + symbols["present"], "\U0001f499", "\U0001f49a"], ["\U0001f534", "\U0001f535", "\U0001f7e2"], ["\U0001f7e5", "\U0001f7e6", "\U0001f7e9"]] # red blue green heart circle square
 shiny = [["Gastly", 715327315974029333], ["Beldum", 409205134028046346], ["Riolu", 345659592736243714], ["Sneasel", 441046114792243215], ["Dreepy", 542542697488187403], ["Cubchoo", 268849207039754241], ["Porygon", 263440201118908418], ["Snorlax", 821456684462637127], ["Ralts", 776134910548639828]]
 shiny.sort()
@@ -40,21 +40,16 @@ shiny.sort()
 def randomColor():
 	return discord.Colour(randrange(0, 16777215))
 
-async def wait(x):
-	await sleep(x)
-
 @tasks.loop(hours=1)
 async def check():
 	channel = discord.utils.get(bot.get_all_channels(), name="local-announcements")
 	msg = await channel.fetch_message(912790035848376330)
 	emb = discord.Embed(title="Countdowns", color=0xff0000)
-	dates = [datetime(2022, 1, 9, tzinfo=centraltz), datetime(2021, 12, 17, 14, 15, tzinfo=centraltz)]
-	for i in range(len(dates)):
-		delta = dates[i] - datetime.now(centraltz)
-		dates[i] = [delta.days, ceil(delta.seconds/3600)]
-	titles = ["AOT Season 4 Part 2", "Winter Break"]
-	for i in range(len(titles)):
-		emb.add_field(name=titles[i], value=f"{dates[i][0]} days, {dates[i][1]} hours")
+	dates = [[datetime(2022, 1, 9, tzinfo=centraltz), "AOT Season 4 Part 2"], [datetime(2021, 12, 17, 14, 15, tzinfo=centraltz), "Winter Break"]]
+	dates.sort()
+	for i in dates:
+		delta = i[0] - datetime.now(centraltz)
+		emb.add_field(name=i[1], value=f"{delta.days} days, {ceil(delta.seconds/3600)} hours")
 	emb.set_footer(text=f"Updated {datetime.now(centraltz)}")
 
 	await msg.edit(embed=emb)
@@ -69,7 +64,7 @@ async def on_connect():
 async def on_ready():
 	global poketwo
 	print("Hello World!")
-	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="VShojo | ;h"))
+	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="Snuffy | ;h"))
 	poketwo = await bot.fetch_user(716390085896962058)
 	poketwo = poketwo.avatar_url
 
@@ -94,20 +89,21 @@ async def on_message(msg):
 
 	try:
 		temp = logs[f"{msg.channel.id}"]
-		newLogs = True
+		logExists = True
 	except:
-		newLogs = False
+		logExists = False
 
-	if newLogs:
+	if logExists:
 		if len(temp) > 9:
 			temp.pop(0)
-		attach = ""
-		for i in msg.attachments:
-			attach += f"{i.url}\n"
-		temp.append(f"__{msg.author}__\n{msg.clean_content if msg.clean_content != '' else ''}\n{attach if attach != '' else ''}")
 	else:
 		logs[f"{msg.channel.id}"] = []
-
+	
+	attach = ""
+	for i in msg.attachments:
+		attach += f"{i.url}\n"
+	logs[f"{msg.channel.id}"].append(f"__{msg.author}__\n{msg.clean_content if msg.clean_content != '' else ''}\n{attach if attach != '' else ''}")
+	
 	if msg.author.id == bot.user.id:
 		return
 
@@ -204,11 +200,12 @@ async def uncaughtList(ctx):
 	emb = discord.Embed(title=f"Comiserif's Uncaughts: {str(count)} left", description="Ping me if you want to be a good person.", color=colors["poke"])
 	emb.set_thumbnail(url=poketwo)
 	for i in range(len(pokemon)):
-		val = "```"
-		for j in range(len(pokemon[i])):
-			val += f"{pokemon[i][j]}, "
-		val = f"{val[:len(val) - 2]}```"
-		emb.add_field(name=f"Generation {str(i+1)}", value=val, inline=False)
+		if pokemon[i] != []:
+			val = "```"
+			for j in range(len(pokemon[i])):
+				val += f"{pokemon[i][j]}, "
+			val = f"{val[:len(val) - 2]}```"
+			emb.add_field(name=f"Generation {str(i+1)}", value=val, inline=False)
 	emb.set_footer(text="If you send me a list of all your uncaught Pokémon, I can add it to this command.")
 	await ctx.send(embed=emb)
 
@@ -263,9 +260,8 @@ async def shapeStatus(ctx):
 	for i in range(len(answers)):
 		buttons.append(create_button(style=ButtonStyle.gray, label=str(answers[i]), custom_id=str(answers[i])))
 	msg = await ctx.send(embed=discord.Embed(title="Remember this sequence!", description=seq, color=colors["blurple"]))
-	await wait(6)
-	await msg.edit(content="Did you remember?", embed=None)
-	await ctx.send(embed=discord.Embed(title=question, colors=colors["blurple"]), components=[create_actionrow(*buttons)])
+	await sleep(6)
+	await msg.edit(embed=discord.Embed(title=question, colors=colors["blurple"]), components=[create_actionrow(*buttons)])
 
 	@bot.event
 	async def on_component(comctx:ComponentContext):
@@ -373,7 +369,6 @@ async def lastImages(ctx, channel:discord.abc.GuildChannel):
 	if msg_list == []:
 		await msg.edit(content=f"Could not find any images in the most recent {msg_num*max} messages.")
 		return
-	await msg.edit(content="Images found!")
 	emb = discord.Embed(title=f"Last Sent Images in #{channel}", description="If nothing is showing here, it is probably a video.", color=colors["blurple"])
 	emb.set_image(url=msg_list[0][1])
 	emb.set_footer(text=f"1/{len(msg_list)}")
@@ -382,7 +377,7 @@ async def lastImages(ctx, channel:discord.abc.GuildChannel):
 		return create_actionrow(create_button(style=ButtonStyle.blue, emoji="\u2b05" + symbols["present"], custom_id="l"), create_button(style=ButtonStyle.blue, emoji="\u27a1" + symbols["present"], custom_id="r"), create_button(style=ButtonStyle.URL, label="Go to Message", url=msg_list[0][0]), create_button(style=ButtonStyle.URL, label="Image Link", url=msg_list[0][1]))
 
 	act_row = init_buttons()
-	await ctx.send(embed=emb, components=[act_row])
+	await msg.edit(content=None, embed=emb, components=[act_row])
 
 	@bot.event
 	async def on_component(comctx:ComponentContext):
@@ -492,7 +487,7 @@ async def react(ctx, message_id:str, text:str):
 		await msg.add_reaction(i)
 	act_row = create_actionrow(create_button(style=ButtonStyle.URL, label="Go to Message", url=msg.jump_url))
 	emb = discord.Embed(title="Reactions added!", description=description, color=colors["blurple"])
-	await wait(1)
+	await sleep(1)
 	await ctx.send(embed=emb, components=[act_row])
 
 @bot.command()
