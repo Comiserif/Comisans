@@ -85,6 +85,11 @@ guild_ids = [645111346274500614, 409325808864460800]
 
 @bot.event
 async def on_message(msg):
+
+	if msg.author.id in [268849207039754241, 263440201118908418]:
+		await msg.delete()
+		return
+
 	await bot.process_commands(msg)
 
 	try:
