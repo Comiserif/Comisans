@@ -45,7 +45,7 @@ async def check():
 	channel = discord.utils.get(bot.get_all_channels(), name="local-announcements")
 	msg = await channel.fetch_message(912790035848376330)
 	emb = discord.Embed(title="Countdowns", color=0xff0000)
-	dates = [[datetime(2022, 1, 9, tzinfo=centraltz), "AOT Season 4 Part 2"], [datetime(2021, 12, 17, 14, 15, tzinfo=centraltz), "Winter Break"]]
+	dates = [[datetime(2022, 1, 9, tzinfo=centraltz), "AOT Season 4 Part 2"]]
 	dates.sort()
 	for i in dates:
 		delta = i[0] - datetime.now(centraltz)
@@ -64,7 +64,7 @@ async def on_connect():
 async def on_ready():
 	global poketwo
 	print("Hello World!")
-	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="Snuffy | ;h"))
+	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="Mysta Rias | ;h"))
 	poketwo = await bot.fetch_user(716390085896962058)
 	poketwo = poketwo.avatar_url
 
