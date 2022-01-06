@@ -1,4 +1,4 @@
-from os import environ
+from os import environ, remove
 from datetime import datetime, timezone, timedelta
 from random import randrange, choice, sample
 from math import ceil
@@ -32,7 +32,7 @@ colors = {"blurple" : 0x5865f2, "poke" : 0xfe9ac9}
 symbols = {"hedgehog" : "\U0001f994", "present" : "\ufe0f"}
 logs = {}
 mods =	[715327315974029333, 268849207039754241]
-pokemon = [[], [], [], ["Heatran", "Regigigas", "Giratina", "Darkrai", "Shaymin"], ["Whimsicott", "Cobalion", "Terrakion", "Tornadus", "Thundurus", "Reshiram", "Landorus", "Kyurem"], ["Xerneas", "Diancie"], ["Type: Null", "Tapu Lele", "Cosmog", "Cosmoem", "Solgaleo", "Buzzwole", "Pheromosa", "Magearna", "Marshadow", "Poipole", "Stakataka", "Blacephalon"], ["Rillaboom", "Orbeetle", "Dubwool", "Drednaw", "Flapple", "Grimmsnarl", "Obstagoon", "Perrserker", "Cursola", "Sirfetch'd", "Mr. Rime", "Runerigus", "Zacian", "Zamazenta", "Kubfu", "Urshifu", "Zarude", "Regieleki", "Regidrago", "Glastrier", "Spectrier", "Calyrex"]]
+pokemon = [[], [], [], ["Giratina", "Darkrai", "Shaymin"], ["Whimsicott", "Cobalion", "Terrakion", "Tornadus", "Thundurus", "Reshiram", "Landorus", "Kyurem"], ["Xerneas", "Diancie"], ["Type: Null", "Tapu Lele", "Cosmog", "Cosmoem", "Solgaleo", "Buzzwole", "Pheromosa", "Magearna", "Marshadow", "Poipole", "Stakataka", "Blacephalon"], ["Rillaboom", "Orbeetle", "Dubwool", "Drednaw", "Flapple", "Grimmsnarl", "Obstagoon", "Perrserker", "Cursola", "Sirfetch'd", "Mr. Rime", "Runerigus", "Zacian", "Zamazenta", "Kubfu", "Urshifu", "Zarude", "Regieleki", "Regidrago", "Glastrier", "Spectrier", "Calyrex"]]
 shapes = [["\u2764" + symbols["present"], "\U0001f499", "\U0001f49a"], ["\U0001f534", "\U0001f535", "\U0001f7e2"], ["\U0001f7e5", "\U0001f7e6", "\U0001f7e9"]] # red blue green heart circle square
 shiny = [["Gastly", 715327315974029333], ["Beldum", 409205134028046346], ["Riolu", 345659592736243714], ["Sneasel", 441046114792243215], ["Dreepy", 542542697488187403], ["Cubchoo", 268849207039754241], ["Porygon", 263440201118908418], ["Snorlax", 821456684462637127], ["Ralts", 776134910548639828]]
 shiny.sort()
@@ -89,21 +89,13 @@ async def on_message(msg):
 	await bot.process_commands(msg)
 
 	try:
-		temp = logs[f"{msg.channel.id}"]
-		logExists = True
+		logs[f"{msg.channel.id}"]
 	except:
-		logExists = False
-
-	if logExists:
-		if len(temp) > 9:
-			temp.pop(0)
-	else:
 		logs[f"{msg.channel.id}"] = []
-	
 	attach = ""
 	for i in msg.attachments:
 		attach += f"{i.url}\n"
-	logs[f"{msg.channel.id}"].append(f"__{msg.author}__\n{msg.clean_content if msg.clean_content != '' else ''}\n{attach if attach != '' else ''}")
+	logs[f"{msg.channel.id}"].append(f"__{msg.author}__\n{msg.clean_content if msg.clean_content != '' else ''}\n{attach if attach != '' else ''}\n\n")
 	
 	if msg.author.id == bot.user.id:
 		return
@@ -127,6 +119,8 @@ async def on_message(msg):
 				brazil = True
 	if brazil:
 		await msg.reply("https://media.discordapp.net/attachments/690665832350613545/831319542151118858/image0.gif")
+
+
 
 @slash.slash(description="Send a message in Comic Sans.", guild_ids=guild_ids, options=[create_option(name="text", description="The text you want to send.", option_type=3, required=True), create_option(name="color", description="The color of the text.", option_type=3, required=False)])
 async def sendcomic(ctx, text:str, color:str="#f0f"):
@@ -283,53 +277,52 @@ async def shapeStatus(ctx):
 
 
 
-@slash.subcommand(base="snipe", name="channel", description="Retrieve the last 10 messages of a channel.", guild_ids=guild_ids, options=[create_option(name="channel", description="The channel to get the messages from.", option_type=7, required=True)])
-async def snipe_channel(ctx, channel:discord.abc.GuildChannel):
+@slash.subcommand(base="logs", name="channel", description="Retrieve a channel's messages.", guild_ids=guild_ids, options=[create_option(name="channel", description="The channel to get the messages from.", option_type=7, required=True)])
+async def logs_channel(ctx, channel:discord.abc.GuildChannel):
 	if not isinstance(channel, discord.TextChannel):
-		print(logs)
 		await ctx.send(f"{channel} is not a text channel.", hidden=True)
 		return
 
+	name = f"{channel.name}.txt"
 	try:
 		temp = logs[f"{channel.id}"]
-		logExists = True
 	except:
-		logExists = False
-
-	if logExists:
-		description = ""
-		for i in temp:
-			description += f"{i}\n\n"
-	else:
 		await ctx.send(f"I do not have messages logged for {channel}.", hidden=True)
 		return
 
-	await ctx.send(embed=discord.Embed(title=f"Last Sent Messages in #{channel}", description=description, color=colors["blurple"]))
+	f = open(name, "x")
+	f.close()
+	with open(name, "w") as f:
+		for i in temp:
+			f.write(i)
+
+	await ctx.send(file=discord.File(name))
+	remove(name)
 
 
 
-@slash.subcommand(base="snipe", name="channel_id", description="Retrieve the last 10 messages of a channel.", guild_ids=guild_ids, options=[create_option(name="channel_id", description="The ID of the channel to get the messages from.", option_type=3, required=True)])
-async def snipe_id(ctx, channel_id:str):
+@slash.subcommand(base="logs", name="channel_id", description="Retrieve a channel's messages.", guild_ids=guild_ids, options=[create_option(name="channel_id", description="The ID of the channel to get the messages from.", option_type=3, required=True)])
+async def logs_id(ctx, channel_id:str):
 	channel = bot.get_channel(int(channel_id))
 	if channel == None or channel.guild.id != ctx.guild_id:
 		await ctx.send("channel_id needs to be the ID of a channel in this server.")
 		return
 
+	name = f"{channel.name}.txt"
 	try:
 		temp = logs[f"{channel.id}"]
-		logExists = True
 	except:
-		logExists = False
-
-	if logExists:
-		description = ""
-		for i in temp:
-			description += f"{i}\n\n"
-	else:
 		await ctx.send(f"I do not have messages logged for {channel}.", hidden=True)
 		return
 
-	await ctx.send(embed=discord.Embed(title=f"Last Sent Messages in #{channel}", description=description, color=colors["blurple"]))
+	f = open(name, "x")
+	f.close()
+	with open(name, "w") as f:
+		for i in temp:
+			f.write(i)
+
+	await ctx.send(file=discord.File(name))
+	remove(name)
 
 
 
