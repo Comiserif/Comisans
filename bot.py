@@ -29,10 +29,10 @@ offset = 6 # 5 = CDT, 6 = CST
 centraltz = timezone(timedelta(hours=-offset))
 
 colors = {"blurple" : 0x5865f2, "poke" : 0xfe9ac9}
-symbols = {"hedgehog" : "\U0001f994", "present" : "\ufe0f"}
+symbols = {"hedgehog" : "\U0001f994", "present" : "\ufe0f", "newline" : "\u000a"}
 logs = {}
 mods =	[715327315974029333, 268849207039754241]
-pokemon = [[], [], [], ["Giratina", "Darkrai", "Shaymin"], ["Whimsicott", "Cobalion", "Terrakion", "Tornadus", "Thundurus", "Reshiram", "Landorus", "Kyurem"], ["Xerneas", "Diancie"], ["Type: Null", "Tapu Lele", "Cosmog", "Cosmoem", "Solgaleo", "Buzzwole", "Pheromosa", "Magearna", "Marshadow", "Poipole", "Stakataka", "Blacephalon"], ["Rillaboom", "Orbeetle", "Dubwool", "Drednaw", "Flapple", "Grimmsnarl", "Obstagoon", "Perrserker", "Cursola", "Sirfetch'd", "Mr. Rime", "Runerigus", "Zacian", "Zamazenta", "Kubfu", "Urshifu", "Zarude", "Regieleki", "Regidrago", "Glastrier", "Spectrier", "Calyrex"]]
+pokemon = [[], [], [], ["Darkrai", "Shaymin"], ["Whimsicott", "Cobalion", "Terrakion", "Tornadus", "Thundurus", "Reshiram", "Landorus", "Kyurem"], ["Xerneas", "Diancie"], ["Type: Null", "Tapu Lele", "Cosmog", "Cosmoem", "Solgaleo", "Buzzwole", "Pheromosa", "Magearna", "Marshadow", "Poipole", "Stakataka", "Blacephalon"], ["Rillaboom", "Orbeetle", "Dubwool", "Drednaw", "Flapple", "Grimmsnarl", "Obstagoon", "Perrserker", "Cursola", "Sirfetch'd", "Mr. Rime", "Runerigus", "Zacian", "Zamazenta", "Kubfu", "Urshifu", "Zarude", "Regieleki", "Regidrago", "Glastrier", "Spectrier", "Calyrex"]]
 shapes = [["\u2764" + symbols["present"], "\U0001f499", "\U0001f49a"], ["\U0001f534", "\U0001f535", "\U0001f7e2"], ["\U0001f7e5", "\U0001f7e6", "\U0001f7e9"]] # red blue green heart circle square
 shiny = [["Gastly", 715327315974029333], ["Beldum", 409205134028046346], ["Riolu", 345659592736243714], ["Sneasel", 441046114792243215], ["Dreepy", 542542697488187403], ["Cubchoo", 268849207039754241], ["Porygon", 263440201118908418], ["Snorlax", 821456684462637127], ["Ralts", 776134910548639828]]
 shiny.sort()
@@ -45,7 +45,7 @@ async def check():
 	channel = discord.utils.get(bot.get_all_channels(), name="local-announcements")
 	msg = await channel.fetch_message(912790035848376330)
 	emb = discord.Embed(title="Countdowns", color=0xff0000)
-	dates = [[datetime(2022, 1, 9, tzinfo=centraltz), "AOT Season 4 Part 2"]]
+	dates = [[datetime(2022, 1, 19, 19, tzinfo=centraltz), "https://youtu.be/GwW9Z41s85Q"]]
 	dates.sort()
 	for i in dates:
 		delta = i[0] - datetime.now(centraltz)
@@ -53,6 +53,8 @@ async def check():
 	emb.set_footer(text=f"Updated {datetime.now(centraltz)}")
 
 	await msg.edit(embed=emb)
+
+
 
 @bot.event
 async def on_connect():
@@ -95,7 +97,11 @@ async def on_message(msg):
 	attach = ""
 	for i in msg.attachments:
 		attach += f"{i.url}\n"
-	logs[f"{msg.channel.id}"].append(f"__{msg.author}__\n{msg.clean_content if msg.clean_content != '' else ''}\n{attach if attach != '' else ''}\n\n")
+	embeds = ""
+	for i in msg.embeds:
+		embeds += f"{i.to_dict()}\n"
+	
+	logs[f"{msg.channel.id}"].append(f"——{msg.author}{' -> ' + (await msg.channel.fetch_message(msg.reference.message_id)).author.name if msg.reference != None else ''} {msg.created_at} Message ID: {msg.id}——\n{msg.clean_content + symbols['newline'] if msg.clean_content != '' else ''}{attach + symbols['newline'] if attach != '' else ''}{embeds if embeds != '' else ''}\n\n")
 	
 	if msg.author.id == bot.user.id:
 		return
@@ -290,9 +296,7 @@ async def logs_channel(ctx, channel:discord.abc.GuildChannel):
 		await ctx.send(f"I do not have messages logged for {channel}.", hidden=True)
 		return
 
-	f = open(name, "x")
-	f.close()
-	with open(name, "w") as f:
+	with open(name, "x") as f:
 		for i in temp:
 			f.write(i)
 
@@ -315,9 +319,7 @@ async def logs_id(ctx, channel_id:str):
 		await ctx.send(f"I do not have messages logged for {channel}.", hidden=True)
 		return
 
-	f = open(name, "x")
-	f.close()
-	with open(name, "w") as f:
+	with open(name, "x") as f:
 		for i in temp:
 			f.write(i)
 
@@ -392,6 +394,7 @@ async def lastImages(ctx, channel:discord.abc.GuildChannel):
 		await comctx.edit_origin(embed=emb, components=[init_buttons()])
 
 
+
 eventually = '''@slash.context_menu(target=ContextMenuType.MESSAGE, name="React With Letters", guild_ids=guild_ids)
 async def react(ctx: MenuContext):
 	await ctx.send("Enter the text to react to the message with in chat.", hidden=True)
@@ -434,6 +437,8 @@ async def react(ctx: MenuContext):
 	act_row = create_actionrow(create_button(style=ButtonStyle.URL, label="Go to Message", url=ctx.target_message.jump_url))
 	emb = discord.Embed(title="Reactions added!", description=description, color=colors["blurple"])
 	await ctx.target_message.channel.send(embed=emb, components=[act_row])'''
+
+
 
 @slash.slash(description="React with letters and numbers to a message.", guild_ids=guild_ids, options=[create_option(name="message_id", description="The ID of the message you want to react to.", option_type=3, required=True), create_option(name="text", description="The text to react to the message with", option_type=3, required=True)])
 async def react(ctx, message_id:str, text:str):
@@ -483,6 +488,8 @@ async def react(ctx, message_id:str, text:str):
 	emb = discord.Embed(title="Reactions added!", description=description, color=colors["blurple"])
 	await sleep(1)
 	await ctx.send(embed=emb, components=[act_row])
+
+
 
 @bot.command()
 async def r(ctx, *para):
