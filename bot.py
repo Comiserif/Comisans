@@ -12,6 +12,9 @@ from discord_slash.utils.manage_components import create_button, create_actionro
 #wait_for_component, create_select, create_select_option
 from discord_slash.model import ButtonStyle, ContextMenuType
 from discord_slash.context import ComponentContext, MenuContext
+import google_auth_oauthlib.flow
+import googleapiclient.discovery
+import googleapiclient.errors
 
 intents = discord.Intents.default()
 intents.members = True
@@ -32,10 +35,41 @@ colors = {"blurple" : 0x5865f2, "poke" : 0xfe9ac9}
 symbols = {"hedgehog" : "\U0001f994", "present" : "\ufe0f", "newline" : "\u000a"}
 logs = {}
 mods =	[715327315974029333, 268849207039754241]
-pokemon = [[], [], [], ["Shaymin"], ["Whimsicott", "Cobalion", "Terrakion", "Tornadus", "Thundurus", "Reshiram", "Landorus", "Kyurem"], ["Xerneas", "Diancie"], ["Type: Null", "Tapu Lele", "Cosmog", "Cosmoem", "Solgaleo", "Buzzwole", "Pheromosa", "Magearna", "Marshadow", "Poipole", "Stakataka", "Blacephalon"], ["Obstagoon", "Perrserker", "Cursola", "Sirfetch'd", "Mr. Rime", "Runerigus", "Zacian", "Zamazenta", "Kubfu", "Urshifu", "Zarude", "Regieleki", "Glastrier", "Spectrier", "Calyrex"]]
+pokemon = [[], [], [], [], [], [], [], []]
 shapes = [["\u2764" + symbols["present"], "\U0001f499", "\U0001f49a"], ["\U0001f534", "\U0001f535", "\U0001f7e2"], ["\U0001f7e5", "\U0001f7e6", "\U0001f7e9"]] # red blue green heart circle square
 shiny = [["Gastly", 715327315974029333], ["Beldum", 409205134028046346], ["Riolu", 345659592736243714], ["Sneasel", 441046114792243215], ["Dreepy", 542542697488187403], ["Cubchoo", 268849207039754241], ["Porygon", 263440201118908418], ["Snorlax", 821456684462637127], ["Ralts", 776134910548639828]]
 shiny.sort()
+scopes = ["https://www.googleapis.com/auth/youtube.force-ssl"]
+
+def ytCheck():
+    # Disable OAuthlib's HTTPS verification when running locally.
+    # *DO NOT* leave this option enabled in production.
+    environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+
+    api_service_name = "youtube"
+    api_version = "v3"
+    client_secrets_file = "client_secret_301225460056-7ee1kljjt97a7el110jr0a5j132sgn4r.apps.googleusercontent.com.json"
+
+    # Get credentials and create an API client
+    flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(
+        client_secrets_file, scopes)
+    credentials = flow.run_console()
+    youtube = googleapiclient.discovery.build(
+        api_service_name, api_version, credentials=credentials)
+
+    request = youtube.search().list(
+        part="snippet",
+        channelId="UCIM92Ok_spNKLVB5TsgwseQ",
+        eventType="upcoming",
+        maxResults=25,
+        type="video"
+    )
+    response = request.execute()
+
+    print(response)
+
+if __name__ == "__main__":
+    ytCheck()
 
 def randomColor():
 	return discord.Colour(randrange(0, 16777215))
@@ -80,6 +114,8 @@ async def on_ready():
 #	for i in []:
 #		msg = await channel.fetch_message(i)
 #		await msg.delete()
+
+	print(bot.get_all_channels())
 
 guild_ids = [645111346274500614, 409325808864460800]
 
@@ -395,6 +431,8 @@ async def lastImages(ctx, channel:discord.abc.GuildChannel):
 
 
 
+# Use when context menus come to mobile
+# Remove react(), ;r, and ;h
 eventually = '''@slash.context_menu(target=ContextMenuType.MESSAGE, name="React With Letters", guild_ids=guild_ids)
 async def react(ctx: MenuContext):
 	await ctx.send("Enter the text to react to the message with in chat.", hidden=True)
