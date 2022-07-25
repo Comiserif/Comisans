@@ -1,11 +1,9 @@
-from cgi import test
 from os import environ
-from datetime import date, datetime, timezone, timedelta
+from datetime import datetime, timezone, timedelta
 import discord
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
 import googleapiclient.errors
-from requests import request
 
 guilds = [409325808864460800]
 bot = discord.Bot(debug_guilds=guilds)
@@ -26,7 +24,8 @@ def stream_info():
 
 	api_service_name = "youtube"
 	api_version = "v3"
-	client_secrets_file = "client_secret_301225460056-uppevtjin0hl3v8c3qa3k6l7u0tf18j1.apps.googleusercontent.com.json"
+	# Use desktop_client.json when testing and web_client.json for heroku
+	client_secrets_file = "web_client.json"
 
 	# Get credentials and create an API client
 	flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(
@@ -132,4 +131,5 @@ async def schedule(ctx):
  
 
 
+# Use token when testing and environ["token"] for heroku
 bot.run(environ["token"])
