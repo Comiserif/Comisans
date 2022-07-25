@@ -1,9 +1,7 @@
 from os import environ
 from datetime import datetime, timezone, timedelta
 import discord
-import google_auth_oauthlib.flow
 import googleapiclient.discovery
-import googleapiclient.errors
 
 guilds = [409325808864460800]
 bot = discord.Bot(debug_guilds=guilds)
@@ -15,8 +13,6 @@ offset = 5 # 5 = CDT, 6 = CST
 centraltime = timezone(timedelta(hours=-offset))
 last_updated = "?"
 
-scopes = ["https://www.googleapis.com/auth/youtube.force-ssl"]
-
 def stream_info():
 	# Disable OAuthlib's HTTPS verification when running locally.
 	# *DO NOT* leave this option enabled in production.
@@ -24,15 +20,10 @@ def stream_info():
 
 	api_service_name = "youtube"
 	api_version = "v3"
-	# Use desktop_client.json when testing and web_client.json for heroku
-	client_secrets_file = "web_client.json"
+	DEVELOPER_KEY = "AIzaSyClopzawTj8PCc-lzcDqI3yyUNokYpaGp4"
 
-	# Get credentials and create an API client
-	flow = google_auth_oauthlib.flow.InstalledAppFlow.from_client_secrets_file(
-		client_secrets_file, scopes)
-	credentials = flow.run_console()
 	youtube = googleapiclient.discovery.build(
-		api_service_name, api_version, credentials=credentials)
+		api_service_name, api_version, developerKey = DEVELOPER_KEY)
 
 	global master; master = []
 	video_ids = []
@@ -128,7 +119,7 @@ async def schedule(ctx):
 	await ctx.respond(embed=emb, view=ui_view())
 
 
- 
+
 
 
 # Use token when testing and environ["token"] for heroku
