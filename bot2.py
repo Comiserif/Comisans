@@ -132,4 +132,4 @@ async def schedule(ctx):
  
 
 
-bot.run("NzQwNzIzMzMzMTI0OTgwNzc2.Gm0Mrr.gsf3No3T2_bWPfCIEW1TlPqZT66tFspzGT7ok4")
+bot.run(environ["token"])
