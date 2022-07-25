@@ -1,17 +1,19 @@
 from os import environ, remove
 from datetime import datetime, timezone, timedelta
-from random import randrange, choice, sample
+from random import randrange, choice
 from math import ceil
 from PIL import Image, ImageFont, ImageDraw, ImageColor
 from asyncio import sleep
 import discord
-from discord.ext import commands, tasks
+from discord.ext import commands
+
 from discord_slash import SlashCommand
 from discord_slash.utils.manage_commands import create_option
 from discord_slash.utils.manage_components import create_button, create_actionrow
-#wait_for_component, create_select, create_select_option
+#, wait_for_component, create_select, create_select_option
 from discord_slash.model import ButtonStyle, ContextMenuType
 from discord_slash.context import ComponentContext, MenuContext
+
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
 import googleapiclient.errors
@@ -28,7 +30,7 @@ author = ""
 font = ImageFont.truetype("comicsansms3.ttf", 48)
 letters = "abcdefghijklmnopqrstuvwxyz"
 numbers = "0123456789"
-offset = 6 # 5 = CDT, 6 = CST
+offset = 5 # 5 = CDT, 6 = CST
 centraltz = timezone(timedelta(hours=-offset))
 
 colors = {"blurple" : 0x5865f2, "poke" : 0xfe9ac9}
@@ -68,25 +70,8 @@ def ytCheck():
 
     print(response)
 
-if __name__ == "__main__":
-    ytCheck()
-
 def randomColor():
 	return discord.Colour(randrange(0, 16777215))
-
-@tasks.loop(hours=1)
-async def check():
-	channel = discord.utils.get(bot.get_all_channels(), name="local-announcements")
-	msg = await channel.fetch_message(912790035848376330)
-	emb = discord.Embed(title="Countdowns", color=0xff0000)
-	dates = [[datetime(2022, 1, 19, 19, tzinfo=centraltz), "https://youtu.be/GwW9Z41s85Q"]]
-	dates.sort()
-	for i in dates:
-		delta = i[0] - datetime.now(centraltz)
-		emb.add_field(name=i[1], value=f"{delta.days} days, {ceil(delta.seconds/3600)} hours")
-	emb.set_footer(text=f"Updated {datetime.now(centraltz)}")
-
-	await msg.edit(embed=emb)
 
 
 
@@ -94,28 +79,22 @@ async def check():
 async def on_connect():
 	print(datetime.now(centraltz))
 
-
-
 @bot.event
 async def on_ready():
 	global poketwo
 	print("Hello World!")
-	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="Alban Knox | ;h"))
+	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="everyone | ;h"))
 	poketwo = await bot.fetch_user(716390085896962058)
 	poketwo = poketwo.avatar_url
 
 #	dm = await discord.utils.get(bot.get_all_members(), name="Comiserif").create_dm()
 #	await dm.send("what")
 
-#	check.start()
-
-	channel = discord.utils.get(bot.get_all_channels(), name="local-retards")
+	channel = discord.utils.get(bot.get_all_channels(), name="dank-memer")
 #	msg = await channel.send(content="", file=None)
 #	for i in []:
 #		msg = await channel.fetch_message(i)
 #		await msg.delete()
-
-	print(bot.get_all_channels())
 
 guild_ids = [645111346274500614, 409325808864460800]
 
@@ -593,4 +572,4 @@ async def listCommands(ctx):
 
 
 
-bot.run(environ["token"])
+bot.run("NzQwNzIzMzMzMTI0OTgwNzc2.XytKXA.OLa7DXo1N-9fiqBUu-hGKeG6rik")
