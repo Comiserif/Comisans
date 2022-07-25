@@ -53,8 +53,9 @@ def stream_info():
 	)
 	response = request.execute()
 
+	# With Visual Studio, times are in UTC | With Heroku, times are in CT  
 	for i in response["items"]:
-		master.append([datetime.strptime(i["liveStreamingDetails"]["scheduledStartTime"], "%Y-%m-%dT%H:%M:%SZ").astimezone(timezone(timedelta(hours=-offset * 2))), i["snippet"]["title"], i["snippet"]["channelTitle"], f"youtu.be/{i['id']}"])
+		master.append([datetime.strptime(i["liveStreamingDetails"]["scheduledStartTime"], "%Y-%m-%dT%H:%M:%SZ").astimezone(timezone(timedelta(hours=-offset))), i["snippet"]["title"], i["snippet"]["channelTitle"], f"youtu.be/{i['id']}"])
 
 def date_str(dt):
 	return dt.strftime("%A, %B %d, %Y")
