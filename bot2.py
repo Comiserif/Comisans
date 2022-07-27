@@ -6,11 +6,15 @@ import googleapiclient.discovery
 guilds = [409325808864460800]
 bot = discord.Bot(debug_guilds=guilds)
 
-master = []
-search_terms = ["Ch. hololive-EN", "【NIJISANJI EN】", "Ch. HOLOSTARS-EN"]
-options = []
 offset = 5 # 5 = CDT, 6 = CST
 centraltime = timezone(timedelta(hours=-offset))
+
+master = []
+search_terms = ["Ch. hololive-EN", "【NIJISANJI EN】", "Ch. HOLOSTARS-EN"]
+dates = []
+select_options = []
+
+time_format = "%A, %B %d, %Y"
 last_updated = "?"
 
 def stream_info():
@@ -25,7 +29,9 @@ def stream_info():
 	youtube = googleapiclient.discovery.build(
 		api_service_name, api_version, developerKey = DEVELOPER_KEY)
 
-	global master; master = []
+	global last_updated
+	master.clear()
+	to_remove = []
 	video_ids = []
 
 	request = youtube.search().list(
@@ -37,7 +43,6 @@ def stream_info():
 	)
 	response = request.execute()
 
-	to_remove = []
 	for i in response["items"]:
 		if (search_terms[0] not in i["snippet"]["channelTitle"]) and (search_terms[1] not in i["snippet"]["channelTitle"]) and (search_terms[2] not in i["snippet"]["channelTitle"]):
 			to_remove.append(i)
@@ -53,36 +58,44 @@ def stream_info():
 	)
 	response = request.execute()
 
-	# With Visual Studio, times are in UTC | With Heroku, times are in CT  
+	# With Visual Studio, times are in UTC | With Heroku, times are in CT
 	for i in response["items"]:
-		master.append([datetime.strptime(i["liveStreamingDetails"]["scheduledStartTime"], "%Y-%m-%dT%H:%M:%SZ").astimezone(timezone(timedelta(hours=-offset))), i["snippet"]["title"], i["snippet"]["channelTitle"], f"youtu.be/{i['id']}"])
+		master.append([datetime.strptime(i["liveStreamingDetails"]["scheduledStartTime"], "%Y-%m-%dT%H:%M:%SZ").astimezone(centraltime), i["snippet"]["title"], i["snippet"]["channelTitle"], f"youtu.be/{i['id']}"])
+	master.sort()
+	last_updated = datetime.now(centraltime)
+
+	dates.clear()
+	for i in master:
+		for j in search_terms:
+			if j in i[2]:
+				i[2] = i[2][:i[2].index(j)]
+		test_date = datetime(*[i[0].year, i[0].month, i[0].day])
+		if test_date not in dates:
+			dates.append(test_date)
+	select_options.clear()
+	for i in dates:
+		select_options.append(discord.SelectOption(label=date_str(i)))
 
 def date_str(dt):
-	return dt.strftime("%A, %B %d, %Y")
+	return dt.strftime(time_format)
 
-def str_date(string):
-	return datetime.strptime(string, "%A, %B %d, %Y")
-
-def time_str(dt):
-	return dt.strftime("%H:%M")
+def emb_init(now):
+	emb = discord.Embed(title=f"Schedule — {date_str(now)}")
+	emb.set_footer(text=f"All times in CT\nLast updated: {last_updated}")
+	for i in master:
+		if (i[0].year == now.year and i[0].month == now.month and i[0].day == now.day):
+			emb.add_field(name=f"{i[2]} — {i[0].strftime('%H:%M')}", value=f"{i[1]}\n__{i[3]}__", inline=False)
+	return emb
 
 class ui_view(discord.ui.View):
-	@discord.ui.select( # the decorator that lets you specify the properties of the select menu
-		placeholder = "Select day...", # the placeholder text that will be displayed if nothing is selected
-		min_values = 1, # the minimum number of values that must be selected by the users
-		max_values = 1, # the maxmimum number of values that can be selected by the users
-		options = options
+	@discord.ui.select(
+		placeholder="Select day..."
+		min_values=1,
+		max_values=1,
+		options=select_options
 	)
-	async def select_callback(self, select, interaction): # the function called when the user is done selecting options
-		value = select.values[0]
-
-		emb = discord.Embed(title=f"Schedule — {value}")
-		emb.set_footer(text=f"All times in CT\nLast updated: {last_updated}")
-		for i in master:
-			if (i[0].year == str_date(value).year and i[0].month == str_date(value).month and i[0].day == str_date(value).day):
-				emb.add_field(name=f"{i[2]} — {time_str(i[0])}", value=f"{i[1]}\n__{i[3]}__", inline=False)
-		
-		await interaction.response.edit_message(embed=emb, view=ui_view())
+	async def select_callback(self, selection, interaction):
+		await interaction.response.edit_message(embed=emb_init(datetime.strptime(selection.values[0], time_format)), view=ui_view())
 
 
 
@@ -96,28 +109,13 @@ async def on_ready():
 
 @bot.slash_command(description="Update master list of videos")
 async def update(ctx):
-	await ctx.defer()
+	await ctx.defer(ephemeral=True)
 	stream_info()
-	master.sort()
-	global last_updated; last_updated = datetime.now(centraltime)
-	await ctx.send_followup(content="Updated!", ephemeral=True)
+	await ctx.respond(content="Updated!")
 
 @bot.slash_command(description="Gives the schedule")
 async def schedule(ctx):
-	now = datetime.now(centraltime)
-	emb = discord.Embed(title=f"Schedule — {date_str(now)}")
-	emb.set_footer(text=f"All times in CT\nLast updated: {last_updated}")
-	dates = []
-	for i in master:
-		test_date = datetime(*[i[0].year, i[0].month, i[0].day])
-		if test_date not in dates:
-			dates.append(test_date)
-		if (i[0].year == now.year and i[0].month == now.month and i[0].day == now.day):
-			emb.add_field(name=f"{i[2]} — {time_str(i[0])}", value=f"{i[1]}\n__{i[3]}__", inline=False)
-	for i in dates:
-		options.append(discord.SelectOption(label=date_str(i)))
-	
-	await ctx.respond(embed=emb, view=ui_view())
+	await ctx.respond(embed=emb_init(datetime.now(centraltime)), view=ui_view())
 
 
 
