@@ -24,7 +24,8 @@ def stream_info():
 
 	api_service_name = "youtube"
 	api_version = "v3"
-	DEVELOPER_KEY = "AIzaSyClopzawTj8PCc-lzcDqI3yyUNokYpaGp4"
+	# Use API key when testing and environ["api_key"] for heroku
+	DEVELOPER_KEY = environ["api_key"]
 
 	youtube = googleapiclient.discovery.build(
 		api_service_name, api_version, developerKey = DEVELOPER_KEY)
@@ -89,7 +90,7 @@ def emb_init(now):
 
 class ui_view(discord.ui.View):
 	@discord.ui.select(
-		placeholder="Select day..."
+		placeholder="Select day...",
 		min_values=1,
 		max_values=1,
 		options=select_options
