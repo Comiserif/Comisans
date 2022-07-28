@@ -61,7 +61,7 @@ def stream_info():
 
 	# With Visual Studio, times are in UTC | With Heroku, times are in CT
 	for i in response["items"]:
-		master.append([datetime.strptime(i["liveStreamingDetails"]["scheduledStartTime"], "%Y-%m-%dT%H:%M:%SZ").astimezone(centraltime), i["snippet"]["title"], i["snippet"]["channelTitle"], f"youtu.be/{i['id']}"])
+		master.append([datetime.strptime(i["liveStreamingDetails"]["scheduledStartTime"], "%Y-%m-%dT%H:%M:%SZ").astimezone(centraltime), i["snippet"]["title"], i["snippet"]["channelTitle"], f"https://youtu.be/{i['id']}"])
 	master.sort()
 	last_updated = datetime.now(centraltime)
 
@@ -70,6 +70,9 @@ def stream_info():
 		for j in search_terms:
 			if j in i[2]:
 				i[2] = i[2][:i[2].index(j)]
+			last_char = len(i[2])-1
+			if i[2][last_char] == " ":
+				i[2] = i[2][:last_char]
 		test_date = datetime(*[i[0].year, i[0].month, i[0].day])
 		if test_date not in dates:
 			dates.append(test_date)
@@ -85,11 +88,12 @@ def emb_init(now):
 	emb.set_footer(text=f"All times in CT\nLast updated: {last_updated}")
 	for i in master:
 		if (i[0].year == now.year and i[0].month == now.month and i[0].day == now.day):
-			emb.add_field(name=f"{i[2]} — {i[0].strftime('%H:%M')}", value=f"{i[1]}\n__{i[3]}__", inline=False)
+			emb.add_field(name=f"{i[2]} — {i[0].strftime('%H:%M')}", value=f"{i[1]}\n__[{i[3]}]({i[3]})__", inline=False)
 	return emb
 
 class ui_view(discord.ui.View):
 	@discord.ui.select(
+		row=0,
 		placeholder="Select day...",
 		min_values=1,
 		max_values=1,
@@ -97,6 +101,10 @@ class ui_view(discord.ui.View):
 	)
 	async def select_callback(self, selection, interaction):
 		await interaction.response.edit_message(embed=emb_init(datetime.strptime(selection.values[0], time_format)), view=ui_view())
+	
+	@discord.ui.button(label="Close Schedule", row=1, style=discord.ButtonStyle.danger)
+	async def button_callback(self, button, interaction):
+		await interaction.response.edit_message(content="<:kronii:904569631094767626>", embed=None, view=None)
 
 
 
