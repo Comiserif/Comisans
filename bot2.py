@@ -1,6 +1,7 @@
 from os import environ
 from datetime import datetime, timezone, timedelta
 import discord
+from discord.ext import tasks
 import googleapiclient.discovery
 
 guilds = [409325808864460800]
@@ -83,11 +84,11 @@ def stream_info():
 def date_str(dt):
 	return dt.strftime(time_format)
 
-def emb_init(now):
-	emb = discord.Embed(title=f"Schedule — {date_str(now)}")
+def emb_init(now, hourly=False):
+	emb = discord.Embed(title = f"Schedule — {date_str(now)}" + (f" {now.hour}:00—{now.hour}:59" if hourly else ""))
 	emb.set_footer(text=f"All times in CT\nLast updated: {last_updated}")
 	for i in master:
-		if (i[0].year == now.year and i[0].month == now.month and i[0].day == now.day):
+		if [i[0].year, i[0].month, i[0].day, i[0].hour if hourly else None] == [now.year, now.month, now.day, now.hour if hourly else None]:
 			emb.add_field(name=f"{i[2]} — {i[0].strftime('%H:%M')}", value=f"{i[1]}\n__[{i[3]}]({i[3]})__", inline=False)
 	return emb
 
@@ -101,10 +102,18 @@ class ui_view(discord.ui.View):
 	)
 	async def select_callback(self, selection, interaction):
 		await interaction.response.edit_message(embed=emb_init(datetime.strptime(selection.values[0], time_format)), view=ui_view())
-	
+
 	@discord.ui.button(label="Close Schedule", row=1, style=discord.ButtonStyle.danger)
 	async def button_callback(self, button, interaction):
 		await interaction.response.edit_message(content="<:kronii:904569631094767626>", embed=None, view=None)
+
+
+
+@tasks.loop(hours=1)
+async def hourly():
+	stream_info()
+	channel = bot.get_channel(738399795491635220)
+	await channel.send(content="<@409205134028046346>", embed=emb_init(datetime.now(centraltime) + timedelta(hours=1), True))
 
 
 
@@ -112,6 +121,8 @@ class ui_view(discord.ui.View):
 async def on_ready():
 	print(datetime.now(centraltime))
 	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="everyone"))
+
+	hourly.start()
 
 	channel = discord.utils.get(bot.get_all_channels(), name="dank-memer")
 #	await channel.send(content="come on, do something")
