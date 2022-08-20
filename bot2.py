@@ -9,6 +9,7 @@ bot = discord.Bot(debug_guilds=guilds)
 
 offset = 5 # 5 = CDT, 6 = CST
 centraltime = timezone(timedelta(hours=-offset))
+fifteen = timedelta(minutes=15)
 
 master = []
 search_terms = ["Ch. hololive-EN", "【NIJISANJI EN】", "Ch. HOLOSTARS-EN"]
@@ -62,7 +63,7 @@ def stream_info():
 
 	# With Visual Studio, times are in UTC | With Heroku, times are in CT
 	for i in response["items"]:
-		master.append([datetime.strptime(i["liveStreamingDetails"]["scheduledStartTime"], "%Y-%m-%dT%H:%M:%SZ").astimezone(centraltime), i["snippet"]["title"], i["snippet"]["channelTitle"], f"https://youtu.be/{i['id']}"])
+		master.append([datetime.strptime(i["liveStreamingDetails"]["scheduledStartTime"], "%Y-%m-%dT%H:%M:%SZ").astimezone(centraltime), i["snippet"]["title"], i["snippet"]["channelTitle"], f"https://youtu.be/{i['id']}", i["snippet"]["liveBroadcastContent"]])
 	master.sort()
 	last_updated = datetime.now(centraltime)
 
@@ -84,12 +85,19 @@ def stream_info():
 def date_str(dt):
 	return dt.strftime(time_format)
 
-def emb_init(now, hourly=False):
-	emb = discord.Embed(title = f"Schedule — {date_str(now)}" + (f" {now.hour}:00—{now.hour}:59" if hourly else ""))
+def emb_init(now, loop=False):
+	emb = discord.Embed(title = f"Schedule — {date_str(now)}" + (f" {now.hour}:{now.minute}-{(now + fifteen).hour}:{(now + fifteen).minute}" if loop else ""))
 	emb.set_footer(text=f"All times in CT\nLast updated: {last_updated}")
 	for i in master:
-		if [i[0].year, i[0].month, i[0].day, i[0].hour if hourly else None] == [now.year, now.month, now.day, now.hour if hourly else None]:
-			emb.add_field(name=f"{i[2]} — {i[0].strftime('%H:%M')}", value=f"{i[1]}\n__[{i[3]}]({i[3]})__", inline=False)
+		if (loop and now <= i[0] <= now + fifteen) or (not loop and [i[0].year, i[0].month, i[0].day] == [now.year, now.month, now.day]):
+			match i[4]:
+				case "upcoming":
+					emoji = "🔵"
+				case "live":
+					emoji = "🔴"
+				case _:
+					emoji = "⚫"
+			emb.add_field(name=f"{emoji} {i[2]} — {i[0].strftime('%H:%M')}", value=f"{i[1]}\n__[{i[3]}]({i[3]})__", inline=False)
 	return emb
 
 class ui_view(discord.ui.View):
@@ -109,11 +117,13 @@ class ui_view(discord.ui.View):
 
 
 
-@tasks.loop(hours=1)
-async def hourly():
+@tasks.loop(minutes=15)
+async def update_loop():
 	stream_info()
-	channel = bot.get_channel(738399795491635220)
-	await channel.send(content="<@409205134028046346>", embed=emb_init(datetime.now(centraltime) + timedelta(hours=1), True))
+	emb = emb_init(datetime.now(centraltime), True)
+	if emb.fields:
+		channel = bot.get_channel(738399795491635220)
+		await channel.send(embed=emb)
 
 
 
@@ -122,7 +132,7 @@ async def on_ready():
 	print(datetime.now(centraltime))
 	await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="everyone"))
 
-	hourly.start()
+	update_loop.start()
 
 	channel = discord.utils.get(bot.get_all_channels(), name="dank-memer")
 #	await channel.send(content="come on, do something")
