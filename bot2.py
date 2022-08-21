@@ -70,11 +70,10 @@ def stream_info():
 	dates = []
 	for i in master:
 		for j in search_terms:
-			if j in i[2]:
-				i[2] = i[2][:i[2].index(j)]
-			last_char = len(i[2])-1
-			if i[2][last_char] == " ":
-				i[2] = i[2][:last_char]
+			i[2] = i[2].replace(j, "")
+		last_char = len(i[2])-1
+		if i[2][last_char] == " ":
+			i[2] = i[2][:last_char]
 		test_date = datetime(i[0].year, i[0].month, i[0].day)
 		if test_date not in dates:
 			dates.append(test_date)
@@ -92,15 +91,16 @@ def emb_init(dt, loop=False):
 		if (not loop and [i[0].year, i[0].month, i[0].day] == [dt.year, dt.month, dt.day]) or (loop and dt <= i[0] <= dt + fifteen):
 			match i[4]:
 				case "upcoming":
-					emoji = "🔵"
+					emoji = ":blue_circle:"
 				case "live":
-					emoji = "🔴"
+					emoji = ":red_circle:"
 				case _:
-					emoji = "⚫"
+					emoji = ":black_circle:"
 			emb.add_field(name=f"{emoji} {i[2]} — {to_str(i[0], time_format)}", value=f"{i[1]}\n__[{i[3]}]({i[3]})__", inline=False)
 	for i in range(len(select_options)):
-		if select_options[i] == to_str(dt, date_format):
-			select_options[i] = "➡️ " + select_options[i]
+		select_options[i].label = select_options[i].label.replace("\u25b6 ", "")
+		if select_options[i].label == to_str(dt, date_format):
+			select_options[i].label = "\u25b6 " + select_options[i].label
 	return emb
 
 class ui_view(discord.ui.View):
