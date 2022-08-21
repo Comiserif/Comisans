@@ -85,11 +85,6 @@ def stream_info():
 def to_str(dt, format):
 	return dt.strftime(format)
 
-def change_selected(dt):
-	for i in range(len(select_options)):
-		if select_options[i] == to_str(dt, date_format):
-			select_options[i] = "➡️ " + select_options[i]
-
 def emb_init(dt, loop=False):
 	emb = discord.Embed(title = f"Schedule — {to_str(dt, date_format)}" + (f" {to_str(dt, time_format)}-{to_str(dt + fifteen, time_format)}" if loop else ""))
 	emb.set_footer(text=f"All times in CT\nLast updated: {last_updated}")
@@ -103,6 +98,9 @@ def emb_init(dt, loop=False):
 				case _:
 					emoji = "⚫"
 			emb.add_field(name=f"{emoji} {i[2]} — {to_str(i[0], time_format)}", value=f"{i[1]}\n__[{i[3]}]({i[3]})__", inline=False)
+	for i in range(len(select_options)):
+		if select_options[i] == to_str(dt, date_format):
+			select_options[i] = "➡️ " + select_options[i]
 	return emb
 
 class ui_view(discord.ui.View):
@@ -114,9 +112,8 @@ class ui_view(discord.ui.View):
 		options=select_options
 	)
 	async def select_callback(self, selection, interaction):
-		dt = datetime.strptime(selection.values[0], date_format)
-		change_selected(dt)
-		await interaction.response.edit_message(embed=emb_init(dt), view=ui_view())
+		emb = emb_init(datetime.strptime(selection.values[0], date_format))
+		await interaction.response.edit_message(embed=emb, view=ui_view())
 
 	@discord.ui.button(label="Close Schedule", row=1, style=discord.ButtonStyle.danger)
 	async def button_callback(self, button, interaction):
@@ -152,9 +149,8 @@ async def update(ctx):
 
 @bot.slash_command(description="Gives the schedule")
 async def schedule(ctx):
-	dt = datetime.now(centraltime)
-	change_selected(dt)
-	await ctx.respond(embed=emb_init(dt), view=ui_view())
+	emb = emb_init(datetime.now(centraltime))
+	await ctx.respond(embed=emb, view=ui_view())
 
 
 
