@@ -14,7 +14,6 @@ fifteen = timedelta(minutes=15)
 master = []
 search_terms = ["Ch. hololive-EN", "【NIJISANJI EN】", "Ch. HOLOSTARS-EN"]
 select_options = []
-placeholder = ["Select day..."]
 
 date_format = "%A, %B %d, %Y"
 time_format = "%H:%M"
@@ -81,23 +80,21 @@ def stream_info():
 			dates.append(test_date)
 	select_options.clear()
 	for i in dates:
-		select_options.append(discord.SelectOption(label=date_str(i)))
+		select_options.append(discord.SelectOption(label=to_str(i, date_format)))
 
-def date_str(dt):
-	return dt.strftime(date_format)
+def to_str(dt, format):
+	return dt.strftime(format)
 
-def time_str(dt):
-	return dt.strftime(time_format)
-
-def update_placeholder(dt):
-	placeholder.clear()
-	placeholder.append(date_str(dt))
+def change_selected(dt):
+	for i in range(len(select_options)):
+		if select_options[i] == to_str(dt, date_format):
+			select_options[i] = "➡️ " + select_options[i]
 
 def emb_init(dt, loop=False):
-	emb = discord.Embed(title = f"Schedule — {date_str(dt)}" + (f" {time_str(dt)}-{time_str(dt + fifteen)}" if loop else ""))
+	emb = discord.Embed(title = f"Schedule — {to_str(dt, date_format)}" + (f" {to_str(dt, time_format)}-{to_str(dt + fifteen, time_format)}" if loop else ""))
 	emb.set_footer(text=f"All times in CT\nLast updated: {last_updated}")
 	for i in master:
-		if (not loop and [i[0].year, i[0].month, i[0].day] == [dt.year, dt.month, dt.day]) or (loop and dt <= i[0] <= dt + fifteen) or (loop and i[4] == "live"):
+		if (not loop and [i[0].year, i[0].month, i[0].day] == [dt.year, dt.month, dt.day]) or (loop and dt <= i[0] <= dt + fifteen):
 			match i[4]:
 				case "upcoming":
 					emoji = "🔵"
@@ -105,20 +102,20 @@ def emb_init(dt, loop=False):
 					emoji = "🔴"
 				case _:
 					emoji = "⚫"
-			emb.add_field(name=f"{emoji} {i[2]} — {time_str(i[0])}", value=f"{i[1]}\n__[{i[3]}]({i[3]})__", inline=False)
+			emb.add_field(name=f"{emoji} {i[2]} — {to_str(i[0], time_format)}", value=f"{i[1]}\n__[{i[3]}]({i[3]})__", inline=False)
 	return emb
 
 class ui_view(discord.ui.View):
 	@discord.ui.select(
 		row=0,
-		placeholder=placeholder[0],
+		placeholder="Select day...",
 		min_values=1,
 		max_values=1,
 		options=select_options
 	)
 	async def select_callback(self, selection, interaction):
 		dt = datetime.strptime(selection.values[0], date_format)
-		update_placeholder(dt)
+		change_selected(dt)
 		await interaction.response.edit_message(embed=emb_init(dt), view=ui_view())
 
 	@discord.ui.button(label="Close Schedule", row=1, style=discord.ButtonStyle.danger)
@@ -156,7 +153,7 @@ async def update(ctx):
 @bot.slash_command(description="Gives the schedule")
 async def schedule(ctx):
 	dt = datetime.now(centraltime)
-	update_placeholder(dt)
+	change_selected(dt)
 	await ctx.respond(embed=emb_init(dt), view=ui_view())
 
 
