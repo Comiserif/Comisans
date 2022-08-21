@@ -14,7 +14,7 @@ fifteen = timedelta(minutes=15)
 master = []
 search_terms = ["Ch. hololive-EN", "【NIJISANJI EN】", "Ch. HOLOSTARS-EN"]
 select_options = []
-placeholder = []
+placeholder = ["Select day..."]
 
 date_format = "%A, %B %d, %Y"
 time_format = "%H:%M"
@@ -93,11 +93,11 @@ def update_placeholder(dt):
 	placeholder.clear()
 	placeholder.append(date_str(dt))
 
-def emb_init(now, loop=False):
-	emb = discord.Embed(title = f"Schedule — {date_str(now)}" + (f" {time_str(now)}-{time_str(now + fifteen)}" if loop else ""))
+def emb_init(dt, loop=False):
+	emb = discord.Embed(title = f"Schedule — {date_str(dt)}" + (f" {time_str(dt)}-{time_str(dt + fifteen)}" if loop else ""))
 	emb.set_footer(text=f"All times in CT\nLast updated: {last_updated}")
 	for i in master:
-		if (not loop and [i[0].year, i[0].month, i[0].day] == [now.year, now.month, now.day]) or (loop and now <= i[0] <= now + fifteen) or (loop and i[4] == "live"):
+		if (not loop and [i[0].year, i[0].month, i[0].day] == [dt.year, dt.month, dt.day]) or (loop and dt <= i[0] <= dt + fifteen) or (loop and i[4] == "live"):
 			match i[4]:
 				case "upcoming":
 					emoji = "🔵"
@@ -117,7 +117,9 @@ class ui_view(discord.ui.View):
 		options=select_options
 	)
 	async def select_callback(self, selection, interaction):
-		await interaction.response.edit_message(embed=emb_init(datetime.strptime(selection.values[0], date_format)), view=ui_view())
+		dt = datetime.strptime(selection.values[0], date_format)
+		update_placeholder(dt)
+		await interaction.response.edit_message(embed=emb_init(dt), view=ui_view())
 
 	@discord.ui.button(label="Close Schedule", row=1, style=discord.ButtonStyle.danger)
 	async def button_callback(self, button, interaction):
@@ -153,7 +155,9 @@ async def update(ctx):
 
 @bot.slash_command(description="Gives the schedule")
 async def schedule(ctx):
-	await ctx.respond(embed=emb_init(datetime.now(centraltime)), view=ui_view())
+	dt = datetime.now(centraltime)
+	update_placeholder(dt)
+	await ctx.respond(embed=emb_init(dt), view=ui_view())
 
 
 
