@@ -7,12 +7,13 @@ import googleapiclient.discovery
 guilds = [409325808864460800]
 bot = discord.Bot(debug_guilds=guilds)
 
-offset = 5 # 5 = CDT, 6 = CST
+offset = 6 # 5 = CDT, 6 = CST
 centraltime = timezone(timedelta(hours=-offset))
 fifteen = timedelta(minutes=15)
 
 master = []
 search_terms = ["Ch. hololive-EN", "【NIJISANJI EN】", "Ch. HOLOSTARS-EN"]
+oshi_marks = {"Mori Calliope":"skull", "Takanashi Kiara":"chicken", "Ninomae Ina'nis":"octopus", "Gawr Gura":"trident", "Watson Amelia":"mag_right", "IRyS":"gem"}
 select_options = []
 
 date_format = "%A, %B %d, %Y"
@@ -74,6 +75,7 @@ def stream_info():
 		last_char = len(i[2])-1
 		if i[2][last_char] == " ":
 			i[2] = i[2][:last_char]
+		i.append(oshi_marks[i[2]])
 		test_date = datetime(i[0].year, i[0].month, i[0].day)
 		if test_date not in dates:
 			dates.append(test_date)
@@ -86,17 +88,17 @@ def to_str(dt, format):
 
 def emb_init(dt, loop=False):
 	emb = discord.Embed(title = f"Schedule — {to_str(dt, date_format)}" + (f" {to_str(dt, time_format)}-{to_str(dt + fifteen, time_format)}" if loop else ""))
-	emb.set_footer(text=f"All times in CT\nLast updated: {last_updated}")
+	emb.set_footer(text=f"All times in CST\nLast updated: {last_updated}")
 	for i in master:
 		if (not loop and [i[0].year, i[0].month, i[0].day] == [dt.year, dt.month, dt.day]) or (loop and dt <= i[0] <= dt + fifteen):
 			match i[4]:
 				case "upcoming":
-					emoji = ":blue_circle:"
+					emoji = "blue"
 				case "live":
-					emoji = ":red_circle:"
+					emoji = "red"
 				case _:
-					emoji = ":black_circle:"
-			emb.add_field(name=f"{emoji} {i[2]} — {to_str(i[0], time_format)}", value=f"{i[1]}\n__[{i[3]}]({i[3]})__", inline=False)
+					emoji = "black"
+			emb.add_field(name=f":{emoji}_circle: :{i[5]}: {i[2]} — {to_str(i[0], time_format)}", value=f"{i[1]}\n__[{i[3]}]({i[3]})__", inline=False)
 	for i in range(len(select_options)):
 		select_options[i].label = select_options[i].label.replace("\u25b6 ", "")
 		if select_options[i].label == to_str(dt, date_format):
