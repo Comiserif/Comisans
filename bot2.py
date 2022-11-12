@@ -13,7 +13,7 @@ fifteen = timedelta(minutes=15)
 
 master = []
 search_terms = ["Ch. hololive-EN", "【NIJISANJI EN】", "Ch. HOLOSTARS-EN"]
-oshi_marks = {"Mori Calliope":"skull", "Takanashi Kiara":"chicken", "Ninomae Ina'nis":"octopus", "Gawr Gura":"trident", "Watson Amelia":"mag_right", "IRyS":"gem"}
+oshi_marks = {"Mori Calliope":":skull:", "Takanashi Kiara":":chicken:", "Ninomae Ina'nis":":octopus:", "Gawr Gura":":trident:", "Watson Amelia":":mag_right:", "IRyS":":gem:", "Ceres Fauna":":herb:", "Ouro Kronii":":hourglass_flowing_sand:", "Nanashi Mumei":":feather:", "Hakos Baelz":":game_die:", "Regis Altare":":sparkler:", "Magni Dezmond":":gloves:", "Axel Syrios":":chains:", "Noir Vesper":":green_book:", "Pomu Rainpuff":":fairy::fallen_leaf:", "Elira Pendora":":white_sun_small_cloud:", "Finana Ryugu":":tropical_fish:", "Rosemi Lovelock":":rose:", "Petra Gurin":":penguin::snowflake:", "Selen Tatsuki":":trophy:", "Nina Kosaka":":slot_machine:", "Millie Parfait":":magic_wand:", "Enna Alouette":":dove::wind_chime:", "Reimu Endou":":ghost::musical_score:", "Luca Kaneshiro":":lion::moneybag:", "Shu Yamino":":athletic_shoe::yin_yang:", "Ike Eveland":":pen_fountain:", "Mysta Rias":":detective::fox:", "Vox Akuma":":japanese_ogre::red_envelope:", "Sonny Brisko":":link::palms_up_together:", "Uki Violeta":":crystal_ball::milky_way:", "Alban Knox":":performing_arts::clock3:", "Fulgur Ovid":":zap::sheep:", "Yugo Asuma":":headphones:", "Maria Marionette":":mending_heart::rabbit:", "Kyo Kaneko":":love_you_gesture:", "Aia Amare":":angel::star:", "Aster Arcadia":":dizzy::purple_heart:", "Scarle Yonaguni":":kiss::nail_care:", "Ren Zotto":":smiling_imp::flying_saucer:"}
 select_options = []
 
 date_format = "%A, %B %d, %Y"
@@ -98,7 +98,7 @@ def emb_init(dt, loop=False):
 					emoji = "red"
 				case _:
 					emoji = "black"
-			emb.add_field(name=f":{emoji}_circle: :{i[5]}: {i[2]} — {to_str(i[0], time_format)}", value=f"{i[1]}\n__[{i[3]}]({i[3]})__", inline=False)
+			emb.add_field(name=f":{emoji}_circle: {i[5]} {i[2]} — {to_str(i[0], time_format)}", value=f"{i[1]}\n__[{i[3]}]({i[3]})__", inline=False)
 	for i in range(len(select_options)):
 		select_options[i].label = select_options[i].label.replace("\u25b6 ", "")
 		if select_options[i].label == to_str(dt, date_format):
