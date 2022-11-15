@@ -87,7 +87,7 @@ def to_str(dt, format):
 	return dt.strftime(format)
 
 def emb_init(dt, loop=False):
-	emb = discord.Embed(title = f"Schedule — {to_str(dt, date_format)}" + (f" {to_str(dt, time_format)}-{to_str(dt + fifteen, time_format)}" if loop else ""))
+	emb = discord.Embed(title = to_str(dt, date_format) + (f" {to_str(dt, time_format)}-{to_str(dt + fifteen, time_format)}" if loop else ""))
 	emb.set_footer(text=f"All times in CST\nLast updated: {last_updated}")
 	image_set = False
 	for i in master:
@@ -101,7 +101,7 @@ def emb_init(dt, loop=False):
 					emoji = "black"
 			emb.add_field(name=f"{'' if loop else f':{emoji}_circle: '}{i[6]} {i[2]} — {to_str(i[0], time_format)}", value=f"{i[1]}\n__[{i[3]}]({i[3]})__", inline=False)
 			if datetime.now(centraltime) < i[0] and not image_set:
-				emb.set_image(i[5])
+				emb.set_image(url=i[5])
 				image_set = True
 	for i in range(len(select_options)):
 		select_options[i].label = select_options[i].label.replace("\u25b6 ", "")
