@@ -64,7 +64,7 @@ def stream_info():
 
 	# With Visual Studio, times are in UTC | With Heroku, times are in CT
 	for i in response["items"]:
-		master.append([datetime.strptime(i["liveStreamingDetails"]["scheduledStartTime"], "%Y-%m-%dT%H:%M:%SZ").astimezone(centraltime), i["snippet"]["title"], i["snippet"]["channelTitle"], f"https://youtu.be/{i['id']}", i["snippet"]["liveBroadcastContent"]])
+		master.append([datetime.strptime(i["liveStreamingDetails"]["scheduledStartTime"], "%Y-%m-%dT%H:%M:%SZ").astimezone(centraltime), i["snippet"]["title"], i["snippet"]["channelTitle"], f"https://youtu.be/{i['id']}", i["snippet"]["liveBroadcastContent"], f"https://i.ytimg.com/vi/{i['id']}/hqdefault.jpg"])
 	master.sort()
 	last_updated = datetime.now(centraltime)
 
@@ -89,6 +89,7 @@ def to_str(dt, format):
 def emb_init(dt, loop=False):
 	emb = discord.Embed(title = f"Schedule — {to_str(dt, date_format)}" + (f" {to_str(dt, time_format)}-{to_str(dt + fifteen, time_format)}" if loop else ""))
 	emb.set_footer(text=f"All times in CST\nLast updated: {last_updated}")
+	image_set = False
 	for i in master:
 		if (not loop and [i[0].year, i[0].month, i[0].day] == [dt.year, dt.month, dt.day]) or (loop and dt <= i[0] <= dt + fifteen):
 			match i[4]:
@@ -98,7 +99,10 @@ def emb_init(dt, loop=False):
 					emoji = "red"
 				case _:
 					emoji = "black"
-			emb.add_field(name=f":{emoji}_circle: {i[5]} {i[2]} — {to_str(i[0], time_format)}", value=f"{i[1]}\n__[{i[3]}]({i[3]})__", inline=False)
+			emb.add_field(name=f"{'' if loop else f':{emoji}_circle: '}{i[6]} {i[2]} — {to_str(i[0], time_format)}", value=f"{i[1]}\n__[{i[3]}]({i[3]})__", inline=False)
+			if datetime.now(centraltime) < i[0] and not image_set:
+				emb.set_image(i[5])
+				image_set = True
 	for i in range(len(select_options)):
 		select_options[i].label = select_options[i].label.replace("\u25b6 ", "")
 		if select_options[i].label == to_str(dt, date_format):
