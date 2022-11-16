@@ -76,7 +76,7 @@ def stream_info():
 		if i["channelTitle"][last_char] == " ":
 			i["channelTitle"] = i["channelTitle"][:last_char]
 		i["identity"] = identities[i["channelTitle"]]
-		test_date = datetime(*ymd(i))
+		test_date = datetime(*ymd(i["time"]))
 		if test_date not in dates:
 			dates.append(test_date)
 	select_options.clear()
@@ -86,15 +86,15 @@ def stream_info():
 def to_str(dt, format):
 	return dt.strftime(format)
 
-def ymd(i):
-	return [i["time"].year, i["time"].month, i["time"].day]
+def ymd(dt):
+	return [dt.year, dt.month, dt.day]
 
 def emb_init(dt, loop=False):
 	emb = discord.Embed(title = to_str(dt, date_format) + (f" {to_str(dt, time_format)}-{to_str(dt + fifteen, time_format)}" if loop else ""))
 	emb.set_footer(text=f"All times in CST\nLast updated: {last_updated}")
 	image_set = False
 	for i in master:
-		if (not loop and ymd(i) == [dt.year, dt.month, dt.day]) or (loop and dt <= i["time"] <= dt + fifteen):
+		if (not loop and ymd(i["time"]) == ymd(dt)) or (loop and dt <= i["time"] <= dt + fifteen):
 			match i["status"]:
 				case "upcoming":
 					emoji = "blue"
@@ -102,7 +102,7 @@ def emb_init(dt, loop=False):
 					emoji = "red"
 				case _:
 					emoji = "black"
-			emb.add_field(name=f"{'' if loop else f':{emoji}_circle: '}{i["identity"][0]} {i["channelTitle"]} — {to_str(i["time"], time_format)}", value=f"{i["title"]}\n__[{i["link"]}]({i["link"]})__", inline=False)
+			emb.add_field(name=f"{'' if loop else f':{emoji}_circle: '}{i['identity'][0]} {i['channelTitle']} — {to_str(i['time'], time_format)}", value=f"{i['title']}\n__[{i['link']}]({i['link']})__", inline=False)
 			if datetime.now(centraltime) < i["time"] and not image_set:
 				emb.set_image(url=i["thumbnail"])
 				emb.color = int(i["identity"][1], base=16)
