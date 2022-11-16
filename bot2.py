@@ -75,7 +75,9 @@ def stream_info():
 		last_char = len(i["channelTitle"])-1
 		if i["channelTitle"][last_char] == " ":
 			i["channelTitle"] = i["channelTitle"][:last_char]
+		print("before set")
 		i["identity"] = identities[i["channelTitle"]]
+		print("after set")
 		test_date = datetime(*ymd(i["time"]))
 		if test_date not in dates:
 			dates.append(test_date)
@@ -102,7 +104,9 @@ def emb_init(dt, loop=False):
 					emoji = "red"
 				case _:
 					emoji = "black"
+			print("before field")
 			emb.add_field(name=f"{'' if loop else f':{emoji}_circle: '}{i['identity'][0]} {i['channelTitle']} — {to_str(i['time'], time_format)}", value=f"{i['title']}\n__[{i['link']}]({i['link']})__", inline=False)
+			print("before image and color")
 			if datetime.now(centraltime) < i["time"] and not image_set:
 				emb.set_image(url=i["thumbnail"])
 				emb.color = int(i["identity"][1], base=16)
