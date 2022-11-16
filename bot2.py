@@ -66,7 +66,7 @@ def stream_info():
 	# With Visual Studio, times are in UTC | With Heroku, times are in CT
 	for i in response["items"]:
 		master.append({"time":datetime.strptime(i["liveStreamingDetails"]["scheduledStartTime"], "%Y-%m-%dT%H:%M:%SZ").astimezone(centraltime), "title":i["snippet"]["title"], "channelTitle":i["snippet"]["channelTitle"], "link":f"https://youtu.be/{i['id']}", "status":i["snippet"]["liveBroadcastContent"], "thumbnail":f"https://i.ytimg.com/vi/{i['id']}/hqdefault.jpg"})
-	master.sort()
+	master.sort(key=get_time)
 
 	dates = []
 	for i in master:
@@ -75,9 +75,7 @@ def stream_info():
 		last_char = len(i["channelTitle"])-1
 		if i["channelTitle"][last_char] == " ":
 			i["channelTitle"] = i["channelTitle"][:last_char]
-		print("before set")
 		i["identity"] = identities[i["channelTitle"]]
-		print("after set")
 		test_date = datetime(*ymd(i["time"]))
 		if test_date not in dates:
 			dates.append(test_date)
@@ -85,11 +83,14 @@ def stream_info():
 	for i in dates:
 		select_options.append(discord.SelectOption(label=to_str(i, date_format)))
 
-def to_str(dt, format):
-	return dt.strftime(format)
+def get_time(i):
+	return i["time"]
 
 def ymd(dt):
 	return [dt.year, dt.month, dt.day]
+
+def to_str(dt, format):
+	return dt.strftime(format)
 
 def emb_init(dt, loop=False):
 	emb = discord.Embed(title = to_str(dt, date_format) + (f" {to_str(dt, time_format)}-{to_str(dt + fifteen, time_format)}" if loop else ""))
@@ -104,9 +105,7 @@ def emb_init(dt, loop=False):
 					emoji = "red"
 				case _:
 					emoji = "black"
-			print("before field")
 			emb.add_field(name=f"{'' if loop else f':{emoji}_circle: '}{i['identity'][0]} {i['channelTitle']} — {to_str(i['time'], time_format)}", value=f"{i['title']}\n__[{i['link']}]({i['link']})__", inline=False)
-			print("before image and color")
 			if datetime.now(centraltime) < i["time"] and not image_set:
 				emb.set_image(url=i["thumbnail"])
 				emb.color = int(i["identity"][1], base=16)
