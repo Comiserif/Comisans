@@ -112,7 +112,7 @@ def emb_init(dt, loop=False):
 				img = Image.open(requests.get(i["thumbnail"], stream=True).raw)
 				img = img.crop((0, 45, 480, 315))
 				img.save('thumbnail.png')
-				emb.set_image(url="https://github.com/Comiserif/Comisans/blob/main/thumbnail.png")
+				emb.set_image(url="https://raw.githubusercontent.com/Comiserif/Comisans/main/thumbnail.png")
 				remove("thumbnail.png")
 				emb.color = int(i["identity"][1], base=16)
 				image_set = True
