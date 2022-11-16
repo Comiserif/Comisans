@@ -1,4 +1,4 @@
-from os import environ, remove
+from os import environ
 from datetime import datetime, timezone, timedelta
 import discord
 from discord.ext import tasks
@@ -113,7 +113,6 @@ def emb_init(dt, loop=False):
 				img = img.crop((0, 45, 480, 315))
 				img.save('thumbnail.png')
 				emb.set_image(url="https://raw.githubusercontent.com/Comiserif/Comisans/main/thumbnail.png")
-				remove("thumbnail.png")
 				emb.color = int(i["identity"][1], base=16)
 				image_set = True
 	for i in range(len(select_options)):
