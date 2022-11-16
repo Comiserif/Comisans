@@ -13,7 +13,7 @@ fifteen = timedelta(minutes=15)
 
 master = []
 search_terms = ["Ch. hololive-EN", "【NIJISANJI EN】", "Ch. HOLOSTARS-EN"]
-oshi_marks = {"Mori Calliope":":skull:", "Takanashi Kiara":":chicken:", "Ninomae Ina'nis":":octopus:", "Gawr Gura":":trident:", "Watson Amelia":":mag_right:", "IRyS":":gem:", "Ceres Fauna":":herb:", "Ouro Kronii":":hourglass_flowing_sand:", "Nanashi Mumei":":feather:", "Hakos Baelz":":game_die:", "Regis Altare":":sparkler:", "Magni Dezmond":":gloves:", "Axel Syrios":":chains:", "Noir Vesper":":green_book:", "Pomu Rainpuff":":fairy::fallen_leaf:", "Elira Pendora":":white_sun_small_cloud:", "Finana Ryugu":":tropical_fish:", "Rosemi Lovelock":":rose:", "Petra Gurin":":penguin::snowflake:", "Selen Tatsuki":":trophy:", "Nina Kosaka":":slot_machine:", "Millie Parfait":":magic_wand:", "Enna Alouette":":dove::wind_chime:", "Reimu Endou":":ghost::musical_score:", "Luca Kaneshiro":":lion::moneybag:", "Shu Yamino":":athletic_shoe::yin_yang:", "Ike Eveland":":pen_fountain:", "Mysta Rias":":detective::fox:", "Vox Akuma":":japanese_ogre::red_envelope:", "Sonny Brisko":":link::palms_up_together:", "Uki Violeta":":crystal_ball::milky_way:", "Alban Knox":":performing_arts::clock3:", "Fulgur Ovid":":zap::sheep:", "Yugo Asuma":":headphones:", "Maria Marionette":":mending_heart::rabbit:", "Kyo Kaneko":":love_you_gesture:", "Aia Amare":":angel::star:", "Aster Arcadia":":dizzy::purple_heart:", "Scarle Yonaguni":":kiss::nail_care:", "Ren Zotto":":smiling_imp::flying_saucer:"}
+identities = {"Mori Calliope":[":skull:", "A1020B"], "Takanashi Kiara":[":chicken:", "DC3907"], "Ninomae Ina'nis":[":octopus:", "3F3E69"], "Gawr Gura":[":trident:", "3A69B2"], "Watson Amelia":[":mag_right:", "F2BD36"], "IRyS":[":gem:", "BC95AF"], "Ceres Fauna":[":herb:", "33CA66"], "Ouro Kronii":[":hourglass_flowing_sand:", "1D1797"], "Nanashi Mumei":[":feather:", "C29371"], "Hakos Baelz":[":game_die:", "FE3A2D"], "Regis Altare":[":sparkler:", "54ACDC"], "Magni Dezmond":[":gloves:", "463464"], "Axel Syrios":[":chains:", "FF9603"], "Noir Vesper":[":green_book:", "C8CCD0"], "Pomu Rainpuff":[":fairy::fallen_leaf:", "258E70"], "Elira Pendora":[":white_sun_small_cloud:", "95C8D8"], "Finana Ryugu":[":tropical_fish:", "79CFB8"], "Rosemi Lovelock":[":rose:", "FFC0CB"], "Petra Gurin":[":penguin::snowflake:", "FFAE42"], "Selen Tatsuki":[":trophy:", "7E4EAC"], "Nina Kosaka":[":slot_machine:", "FF0000"], "Millie Parfait":[":magic_wand:", "FEBC87"], "Enna Alouette":[":dove::wind_chime:", "858ED1"], "Reimu Endou":[":ghost::musical_score:", "B90B4A"], "Luca Kaneshiro":[":lion::moneybag:", "D4AF37"], "Shu Yamino":[":athletic_shoe::yin_yang:", "A660A7"], "Ike Eveland":[":pen_fountain:", "348EC7"], "Mysta Rias":[":detective::fox:", "C3552B"], "Vox Akuma":[":japanese_ogre::red_envelope:", "960018"], "Sonny Brisko":[":link::palms_up_together:", "FFF321"], "Uki Violeta":[":crystal_ball::milky_way:", "B600FF"], "Alban Knox":[":performing_arts::clock3:", "FF5F00"], "Fulgur Ovid":[":zap::sheep:", "FF0000"], "Yugo Asuma":[":headphones:", "1F51FF"], "Maria Marionette":[":mending_heart::rabbit:", "E55A9B"], "Kyo Kaneko":[":love_you_gesture:", "00AFCC"], "Aia Amare":[":angel::star:", "FFFEF7"], "Aster Arcadia":[":dizzy::purple_heart:", "6662A4"], "Scarle Yonaguni":[":kiss::nail_care:", "E60012"], "Ren Zotto":[":smiling_imp::flying_saucer:", "429B76"]}
 select_options = []
 
 date_format = "%A, %B %d, %Y"
@@ -46,9 +46,10 @@ def stream_info():
 		type="video"
 	)
 	response = request.execute()
+	last_updated = datetime.now(centraltime)
 
 	for i in response["items"]:	
-		if (search_terms[0] not in i["snippet"]["channelTitle"]) and (search_terms[1] not in i["snippet"]["channelTitle"]) and (search_terms[2] not in i["snippet"]["channelTitle"]):
+		if not (search_terms[0] in i["snippet"]["channelTitle"] or search_terms[1] in i["snippet"]["channelTitle"] or search_terms[2] in i["snippet"]["channelTitle"]):
 			to_remove.append(i)
 	for i in to_remove:
 		response["items"].remove(i)
@@ -64,19 +65,18 @@ def stream_info():
 
 	# With Visual Studio, times are in UTC | With Heroku, times are in CT
 	for i in response["items"]:
-		master.append([datetime.strptime(i["liveStreamingDetails"]["scheduledStartTime"], "%Y-%m-%dT%H:%M:%SZ").astimezone(centraltime), i["snippet"]["title"], i["snippet"]["channelTitle"], f"https://youtu.be/{i['id']}", i["snippet"]["liveBroadcastContent"], f"https://i.ytimg.com/vi/{i['id']}/hqdefault.jpg"])
+		master.append({"time":datetime.strptime(i["liveStreamingDetails"]["scheduledStartTime"], "%Y-%m-%dT%H:%M:%SZ").astimezone(centraltime), "title":i["snippet"]["title"], "channelTitle":i["snippet"]["channelTitle"], "link":f"https://youtu.be/{i['id']}", "status":i["snippet"]["liveBroadcastContent"], "thumbnail":f"https://i.ytimg.com/vi/{i['id']}/hqdefault.jpg"})
 	master.sort()
-	last_updated = datetime.now(centraltime)
 
 	dates = []
 	for i in master:
 		for j in search_terms:
-			i[2] = i[2].replace(j, "")
-		last_char = len(i[2])-1
-		if i[2][last_char] == " ":
-			i[2] = i[2][:last_char]
-		i.append(oshi_marks[i[2]])
-		test_date = datetime(i[0].year, i[0].month, i[0].day)
+			i["channelTitle"] = i["channelTitle"].replace(j, "")
+		last_char = len(i["channelTitle"])-1
+		if i["channelTitle"][last_char] == " ":
+			i["channelTitle"] = i["channelTitle"][:last_char]
+		i["identity"] = identities[i["channelTitle"]]
+		test_date = datetime(*ymd(i))
 		if test_date not in dates:
 			dates.append(test_date)
 	select_options.clear()
@@ -86,22 +86,26 @@ def stream_info():
 def to_str(dt, format):
 	return dt.strftime(format)
 
+def ymd(i):
+	return [i["time"].year, i["time"].month, i["time"].day]
+
 def emb_init(dt, loop=False):
 	emb = discord.Embed(title = to_str(dt, date_format) + (f" {to_str(dt, time_format)}-{to_str(dt + fifteen, time_format)}" if loop else ""))
 	emb.set_footer(text=f"All times in CST\nLast updated: {last_updated}")
 	image_set = False
 	for i in master:
-		if (not loop and [i[0].year, i[0].month, i[0].day] == [dt.year, dt.month, dt.day]) or (loop and dt <= i[0] <= dt + fifteen):
-			match i[4]:
+		if (not loop and ymd(i) == [dt.year, dt.month, dt.day]) or (loop and dt <= i["time"] <= dt + fifteen):
+			match i["status"]:
 				case "upcoming":
 					emoji = "blue"
 				case "live":
 					emoji = "red"
 				case _:
 					emoji = "black"
-			emb.add_field(name=f"{'' if loop else f':{emoji}_circle: '}{i[6]} {i[2]} — {to_str(i[0], time_format)}", value=f"{i[1]}\n__[{i[3]}]({i[3]})__", inline=False)
-			if datetime.now(centraltime) < i[0] and not image_set:
-				emb.set_image(url=i[5])
+			emb.add_field(name=f"{'' if loop else f':{emoji}_circle: '}{i["identity"][0]} {i["channelTitle"]} — {to_str(i["time"], time_format)}", value=f"{i["title"]}\n__[{i["link"]}]({i["link"]})__", inline=False)
+			if datetime.now(centraltime) < i["time"] and not image_set:
+				emb.set_image(url=i["thumbnail"])
+				emb.color = int(i["identity"][1], base=16)
 				image_set = True
 	for i in range(len(select_options)):
 		select_options[i].label = select_options[i].label.replace("\u25b6 ", "")
