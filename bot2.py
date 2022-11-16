@@ -110,7 +110,7 @@ def emb_init(dt, loop=False):
 			emb.add_field(name=f"{'' if loop else f':{emoji}_circle: '}{i['identity'][0]} {i['channelTitle']} — {to_str(i['time'], time_format)}", value=f"{i['title']}\n__[{i['link']}]({i['link']})__", inline=False)
 			if datetime.now(centraltime) < i["time"] and not image_set:
 				img = Image.open(requests.get(i["thumbnail"], stream=True).raw)
-				img = img.crop((0, 45, 0, 45))
+				img = img.crop((0, 45, 0, 315))
 				img.save('thumbnail.png')
 				emb.set_image(url=thumbnail.png)
 				remove("thumbnail.png")
