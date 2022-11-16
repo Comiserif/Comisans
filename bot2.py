@@ -1,8 +1,10 @@
-from os import environ
+from os import environ, remove
 from datetime import datetime, timezone, timedelta
 import discord
 from discord.ext import tasks
 import googleapiclient.discovery
+import requests
+from PIL import Image
 
 guilds = [409325808864460800]
 bot = discord.Bot(debug_guilds=guilds)
@@ -107,7 +109,11 @@ def emb_init(dt, loop=False):
 					emoji = "black"
 			emb.add_field(name=f"{'' if loop else f':{emoji}_circle: '}{i['identity'][0]} {i['channelTitle']} — {to_str(i['time'], time_format)}", value=f"{i['title']}\n__[{i['link']}]({i['link']})__", inline=False)
 			if datetime.now(centraltime) < i["time"] and not image_set:
-				emb.set_image(url=i["thumbnail"])
+				img = Image.open(requests.get(i["thumbnail"], stream=True).raw)
+				img = img.crop((0, 45, 0, 45))
+				img.save('thumbnail.png')
+				emb.set_image(url=thumbnail.png)
+				remove("thumbnail.png")
 				emb.color = int(i["identity"][1], base=16)
 				image_set = True
 	for i in range(len(select_options)):
