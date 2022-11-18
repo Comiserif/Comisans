@@ -67,7 +67,7 @@ def stream_info():
 
 	# With Visual Studio, times are in UTC | With Heroku, times are in CT
 	for i in response["items"]:
-		master.append({"time":datetime.strptime(i["liveStreamingDetails"]["scheduledStartTime"], "%Y-%m-%dT%H:%M:%SZ").astimezone(centraltime), "title":i["snippet"]["title"], "channelTitle":i["snippet"]["channelTitle"], "link":f"https://youtu.be/{i['id']}", "status":i["snippet"]["liveBroadcastContent"], "thumbnail":f"https://i.ytimg.com/vi/{i['id']}/hqdefault.jpg"})
+		master.append({"time":datetime.strptime(i["liveStreamingDetails"]["scheduledStartTime"], "%Y-%m-%dT%H:%M:%SZ").astimezone(centraltime), "title":i["snippet"]["title"], "channelTitle":i["snippet"]["channelTitle"], "link":f"https://youtu.be/{i['id']}", "status":i["snippet"]["liveBroadcastContent"], "thumbnail":f"https://i.ytimg.com/vi/{i['id']}/maxresdefault.jpg"})
 	master.sort(key=get_time)
 
 	dates = []
