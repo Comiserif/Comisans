@@ -6,7 +6,8 @@ import googleapiclient.discovery
 import requests
 import subprocess
 
-subprocess.run(["ls", "-l"])
+list_files = subprocess.run(["ls", "-l"])
+print("The exit code was: %d" % list_files.returncode)
 
 guilds = [409325808864460800]
 bot = discord.Bot(debug_guilds=guilds)
