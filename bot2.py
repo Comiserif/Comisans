@@ -4,7 +4,9 @@ import discord
 from discord.ext import tasks
 import googleapiclient.discovery
 import requests
-from PIL import Image
+import subprocess
+
+subprocess.run(["ls", "-l"])
 
 guilds = [409325808864460800]
 bot = discord.Bot(debug_guilds=guilds)
