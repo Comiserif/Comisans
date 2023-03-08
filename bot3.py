@@ -1,7 +1,5 @@
 from os import environ
 from datetime import datetime, timezone, timedelta
-import discord
-from discord.ext import tasks
 import googleapiclient.discovery
 import requests
 

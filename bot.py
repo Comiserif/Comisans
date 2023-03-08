@@ -572,4 +572,4 @@ async def listCommands(ctx):
 
 
 
-bot.run("NzQwNzIzMzMzMTI0OTgwNzc2.XytKXA.OLa7DXo1N-9fiqBUu-hGKeG6rik")
+bot.run(environ["token"])
