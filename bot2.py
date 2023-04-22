@@ -3,6 +3,7 @@ from datetime import datetime, timezone, timedelta
 import discord
 from discord.ext import tasks
 import googleapiclient.discovery
+from urllib.request import urlopen
 
 guilds = [409325808864460800]
 bot = discord.Bot(debug_guilds=guilds)
