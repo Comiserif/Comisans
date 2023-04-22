@@ -3,12 +3,11 @@ from datetime import datetime, timezone, timedelta
 import discord
 from discord.ext import tasks
 import googleapiclient.discovery
-import requests
 
 guilds = [409325808864460800]
 bot = discord.Bot(debug_guilds=guilds)
 
-offset = 6 # 5 = CDT, 6 = CST
+offset = 5 # 5 = CDT, 6 = CST
 centraltime = timezone(timedelta(hours=-offset))
 fifteen = timedelta(minutes=15)
 
@@ -35,7 +34,6 @@ def stream_info():
 
 	global last_updated
 	master.clear()
-	to_remove = []
 	video_ids = []
 
 	request = youtube.search().list(
